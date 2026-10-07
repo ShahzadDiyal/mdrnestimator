@@ -14,7 +14,8 @@ import {
   IconInbox,
   IconLogout, IconSearch, IconBell, IconMenu,
   IconX, IconExternal, IconChevronDown, IconUsers, IconFileText, IconLayers,
-  IconHelp, IconStar, IconPen,
+  IconHelp, IconStar, IconPen, IconShield, IconClock, IconSend, IconBriefcase,
+  IconChart, IconImage, IconPhone, IconGlobe, IconBot, IconMail, IconSettings,
 } from './icons';
 
 const NAV = [
@@ -33,6 +34,27 @@ const NAV = [
       { href: '/admin/content/blog', label: 'Blog & Articles', icon: IconPen },
       { href: '/admin/content/faqs', label: 'FAQs', icon: IconHelp },
       { href: '/admin/content/testimonials', label: 'Client Testimonials', icon: IconStar },
+    ],
+  },
+  {
+    section: 'Website Content',
+    items: [
+      { href: '/admin/content/hero', label: 'Hero Section', icon: IconStar },
+      { href: '/admin/content/navbar', label: 'Navbar', icon: IconMenu },
+      { href: '/admin/content/footer', label: 'Footer', icon: IconLayers },
+      { href: '/admin/content/why-choose-us', label: 'Why Choose Us', icon: IconShield },
+      { href: '/admin/content/process-steps', label: 'Process Steps', icon: IconClock },
+      { href: '/admin/content/cta-banner', label: 'CTA Banner', icon: IconSend },
+      { href: '/admin/content/section-headings', label: 'Section Headings', icon: IconPen },
+      { href: '/admin/content/quote-options', label: 'Quote Form Options', icon: IconFileText },
+      { href: '/admin/content/about', label: 'About Page', icon: IconBriefcase },
+      { href: '/admin/content/stats', label: 'Stats & Counters', icon: IconChart },
+      { href: '/admin/content/portfolio', label: 'Portfolio', icon: IconImage },
+      { href: '/admin/content/contact', label: 'Contact Details', icon: IconPhone },
+      { href: '/admin/content/seo', label: 'SEO Meta', icon: IconGlobe },
+      { href: '/admin/content/chatbot', label: 'Chatbot', icon: IconBot },
+      { href: '/admin/content/email', label: 'Email & Notifications', icon: IconMail },
+      { href: '/admin/settings', label: 'Site Settings', icon: IconSettings },
     ],
   },
   {
