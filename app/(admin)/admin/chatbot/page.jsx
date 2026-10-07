@@ -7,7 +7,7 @@ import {
   PageHeader, Card, Btn, Badge, Field, Input, Textarea, Select, Toggle, Tabs,
   Modal, TableWrap, thCls, tdCls, toast,
 } from '@/components/admin/ui';
-import { IconPlus, IconTrash, IconBot, IconMessage, IconChart, IconRefresh } from '@/components/admin/icons';
+import { IconPlus, IconTrash, IconBot, IconMessage, IconChart, IconRefresh, IconEye } from '@/components/admin/icons';
 
 function FactRow({ fact, onSave, onDelete }) {
   const [key, setKey] = useState(fact.key || '');
@@ -65,7 +65,11 @@ export default function ChatbotPage() {
   const [deleting, setDeleting] = useState(null);
   const [limitsLoading, setLimitsLoading] = useState(true);
   const [limitsSaving, setLimitsSaving] = useState(false);
-  const [limits, setLimits] = useState({ model: '', monthlyBudget: '', rateLimit: '', enabled: false, leadCapture: false });
+  const [showKey, setShowKey] = useState(false);
+  const [limits, setLimits] = useState({
+    model: '', monthlyBudget: '', rateLimit: '', enabled: false, leadCapture: false,
+    systemPrompt: '', apiKey: '', showFloatingIcon: true, agentName: 'Ryan', welcomeMessage: '',
+  });
 
   const fetchFacts = async () => {
     setLoading(true);
@@ -110,6 +114,11 @@ export default function ChatbotPage() {
           rateLimit: data.data.rateLimit || '',
           enabled: !!data.data.enabled,
           leadCapture: !!data.data.leadCapture,
+          systemPrompt: data.data.systemPrompt || '',
+          apiKey: data.data.apiKey || '',
+          showFloatingIcon: data.data.showFloatingIcon !== false,
+          agentName: data.data.agentName || 'Ryan',
+          welcomeMessage: data.data.welcomeMessage || '',
         });
       }
     } catch (err) {
@@ -339,6 +348,48 @@ export default function ChatbotPage() {
               <div className="space-y-3 border-t border-ink-900/5 pt-5">
                 <Toggle checked={limits.enabled} onChange={(v) => setLimits({ ...limits, enabled: v })} label="Chatbot enabled" />
                 <Toggle checked={limits.leadCapture} onChange={(v) => setLimits({ ...limits, leadCapture: v })} label="Capture leads from chats" />
+                <Toggle checked={!!limits.showFloatingIcon} onChange={(v) => setLimits({ ...limits, showFloatingIcon: v })} label="Show floating chat icon" />
+              </div>
+
+              <div className="space-y-5 border-t border-ink-900/5 pt-5">
+                <h3 className="font-bold text-ink-900">Assistant behavior</h3>
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <Field label="Agent name">
+                    <Input value={limits.agentName} onChange={(e) => setLimits({ ...limits, agentName: e.target.value })} placeholder="Ryan" />
+                  </Field>
+                  <Field label="AI API key" hint="Leave empty to use the server's ANTHROPIC_API_KEY.">
+                    <div className="relative">
+                      <Input
+                        type={showKey ? 'text' : 'password'}
+                        value={limits.apiKey}
+                        onChange={(e) => setLimits({ ...limits, apiKey: e.target.value })}
+                        placeholder="sk-ant-…"
+                        className="pr-11"
+                        autoComplete="off"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowKey((v) => !v)}
+                        aria-label={showKey ? 'Hide API key' : 'Show API key'}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-1.5 text-ink-400 hover:bg-slate-100 hover:text-ink-700"
+                      >
+                        <IconEye size={16} />
+                      </button>
+                    </div>
+                  </Field>
+                </div>
+                <Field label="Welcome message" hint="First message visitors see when they open the chat.">
+                  <Textarea rows={2} value={limits.welcomeMessage} onChange={(e) => setLimits({ ...limits, welcomeMessage: e.target.value })} placeholder="Hi there! …" />
+                </Field>
+                <Field label="System prompt" hint="The built-in instructions the AI follows on every reply.">
+                  <Textarea
+                    rows={12}
+                    value={limits.systemPrompt}
+                    onChange={(e) => setLimits({ ...limits, systemPrompt: e.target.value })}
+                    className="font-mono text-xs leading-relaxed"
+                    placeholder="You are …"
+                  />
+                </Field>
               </div>
 
               <div className="flex justify-end border-t border-ink-900/5 pt-5">

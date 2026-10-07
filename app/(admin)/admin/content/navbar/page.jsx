@@ -4,6 +4,7 @@
 import { useEffect, useState } from 'react';
 import { PageHeader, Card, Btn, Field, Input, toast } from '@/components/admin/ui';
 import { IconCheck, IconMenu, IconRefresh } from '@/components/admin/icons';
+import MenuTreeManager from '@/components/admin/MenuTree';
 
 const emptyForm = {
   phoneDisplay: '',
@@ -147,6 +148,12 @@ export default function NavbarPage() {
           </>
         )}
       </div>
+
+      <MenuTreeManager
+        title="Menu items"
+        subtitle="Every link in the navbar, with sub-menus. Drag-free ordering via the arrow buttons."
+        apiBase="/api/navMenus"
+      />
     </>
   );
 }

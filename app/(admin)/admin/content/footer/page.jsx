@@ -4,6 +4,13 @@
 import { useEffect, useState } from 'react';
 import { PageHeader, Card, Btn, Field, Input, Textarea, toast } from '@/components/admin/ui';
 import { IconCheck, IconLayers, IconRefresh } from '@/components/admin/icons';
+import MenuTreeManager from '@/components/admin/MenuTree';
+
+const FOOTER_GROUPS = [
+  { id: 'company', label: 'Company' },
+  { id: 'services', label: 'Services' },
+  { id: 'legal', label: 'Legal' },
+];
 
 const emptyForm = {
   aboutBlurb: '',
@@ -169,6 +176,13 @@ export default function FooterPage() {
           </>
         )}
       </div>
+
+      <MenuTreeManager
+        title="Footer menus"
+        subtitle="Link columns in the footer: Company, Services and the legal row."
+        apiBase="/api/footerMenus"
+        groups={FOOTER_GROUPS}
+      />
     </>
   );
 }
