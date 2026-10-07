@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { PageHeader, Card, Btn, Field, Input, Textarea, toast } from '@/components/admin/ui';
+import { FormSkeleton } from '@/components/admin/Skeleton';
 import { IconCheck, IconPlus, IconTrash, IconBriefcase, IconRefresh } from '@/components/admin/icons';
 
 const emptyForm = {
@@ -115,7 +116,7 @@ export default function AboutPage() {
 
       <div className="max-w-2xl space-y-6">
         {loading ? (
-          <Card className="py-10 text-center text-sm text-ink-500">Loading…</Card>
+          <FormSkeleton />
         ) : (
           <>
             <Card className="space-y-4">

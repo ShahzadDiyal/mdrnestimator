@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
 import CtaBanner from '@/components/CtaBanner';
-import { getPosts, getPostBySlug } from '@/lib/site';
+import { getPosts } from '@/lib/site';
 
 const BASE_URL = 'https://modernestimator.com';
 
@@ -22,7 +22,7 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }) {
-  const post = await getPostBySlug(params.slug);
+  const post = (await getPosts()).find((p) => p.slug === params.slug);
   if (!post) return {};
   const title = post.metaTitle || `${post.title} | Modern Estimator`;
   const description = post.metaDescription || post.excerpt || '';
@@ -101,10 +101,10 @@ function formatDate(d) {
 }
 
 export default async function BlogPostPage({ params }) {
-  const post = await getPostBySlug(params.slug);
+  const all = await getPosts();
+  const post = all.find((p) => p.slug === params.slug) || null;
   if (!post) notFound();
 
-  const all = await getPosts();
   const related = all
     .filter((p) => p.slug !== post.slug && (post.category ? p.category === post.category : true))
     .slice(0, 3);

@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { PageHeader, Card, Btn, Field, Input, Textarea, Select, Toggle, toast } from '@/components/admin/ui';
+import { FormSkeleton } from '@/components/admin/Skeleton';
 import { IconCheck, IconGlobe, IconRefresh } from '@/components/admin/icons';
 
 const emptyForm = {
@@ -134,7 +135,7 @@ export default function SiteSeoPage() {
       />
 
       {loading ? (
-        <Card className="text-center text-sm text-ink-500">Loading SEO settings…</Card>
+        <FormSkeleton />
       ) : (
         <div className="grid gap-5 lg:grid-cols-2">
           <div className="space-y-5">

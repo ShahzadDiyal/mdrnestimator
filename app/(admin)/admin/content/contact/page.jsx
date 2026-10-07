@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { PageHeader, Card, Btn, Field, Input, Textarea, toast } from '@/components/admin/ui';
+import { FormSkeleton } from '@/components/admin/Skeleton';
 import { IconCheck, IconPhone, IconRefresh } from '@/components/admin/icons';
 
 export default function ContactPage() {
@@ -103,7 +104,7 @@ export default function ContactPage() {
         </div>
 
         {loading ? (
-          <p className="py-8 text-center text-sm text-ink-500">Loading…</p>
+          <FormSkeleton />
         ) : (
           <>
             <div className="space-y-4">

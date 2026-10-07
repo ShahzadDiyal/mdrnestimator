@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import { PageHeader, Card, Btn, Toggle, toast } from '@/components/admin/ui';
+import { FormSkeleton } from '@/components/admin/Skeleton';
 import { IconCheck, IconEye, IconRefresh } from '@/components/admin/icons';
 
 const emptyForm = {
@@ -163,7 +164,7 @@ export default function VisibilityPage() {
       />
 
       {loading ? (
-        <Card className="text-center text-sm text-ink-500">Loading visibility settings…</Card>
+        <FormSkeleton />
       ) : (
         <div className="grid items-start gap-5 lg:grid-cols-3">
           <ToggleGroup

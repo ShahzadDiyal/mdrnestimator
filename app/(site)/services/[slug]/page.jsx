@@ -45,7 +45,9 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ServiceDetailPage({ params }) {
-  const raw = (await getServiceBySlug(params.slug)) || getService(params.slug);
+  // One parallel roundtrip for everything the page needs.
+  const [liveServices, liveTrades] = await Promise.all([getServices(), getTrades()]);
+  const raw = liveServices.find((s) => s.slug === params.slug) || getService(params.slug);
   if (!raw) notFound();
 
   const service = {
@@ -56,14 +58,12 @@ export default async function ServiceDetailPage({ params }) {
     deliverables: toArray(raw.deliverables),
   };
 
-  const liveServices = await getServices();
   const all = liveServices.length ? liveServices : SERVICES;
   const others = all
     .filter((s) => s.slug !== service.slug)
     .slice(0, 4)
     .map((s) => ({ slug: s.slug, title: s.title, icon: iconFor(s.slug) }));
 
-  const liveTrades = await getTrades();
   const tradePool = liveTrades.length ? liveTrades : getAllTrades();
   const relatedTrades = (SERVICE_TRADES[service.slug] || [])
     .map((slug) => tradePool.find((t) => t.slug === slug))

@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { PageHeader, Card, Btn, Field, Input, toast } from '@/components/admin/ui';
+import { FormSkeleton } from '@/components/admin/Skeleton';
 import { IconCheck, IconMenu, IconRefresh } from '@/components/admin/icons';
 import MenuTreeManager from '@/components/admin/MenuTree';
 
@@ -95,7 +96,7 @@ export default function NavbarPage() {
 
       <div className="max-w-2xl space-y-6">
         {loading ? (
-          <Card className="py-10 text-center text-sm text-ink-500">Loading…</Card>
+          <FormSkeleton />
         ) : (
           <>
             <Card className="space-y-4">

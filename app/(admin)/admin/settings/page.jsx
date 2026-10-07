@@ -7,6 +7,7 @@ import { useAuth, isAdmin } from '@/components/admin/auth';
 import {
   PageHeader, Card, Btn, Field, Input, Select, Toggle, EmptyState, toast,
 } from '@/components/admin/ui';
+import { FormSkeleton } from '@/components/admin/Skeleton';
 import { IconShield, IconRefresh } from '@/components/admin/icons';
 
 const SESSION_TIMEOUTS = ['1 hour', '4 hours', '8 hours', '24 hours'];
@@ -159,7 +160,7 @@ export default function SettingsPage() {
         <Card className="space-y-5">
           <h2 className="text-base font-bold text-ink-900">General</h2>
           {loading ? (
-            <p className="py-6 text-center text-sm text-ink-500">Loading…</p>
+            <FormSkeleton />
           ) : (
             <>
               <Field label="Site name">
@@ -192,7 +193,7 @@ export default function SettingsPage() {
             <p className="mt-0.5 text-sm text-ink-500">Logo and favicon used across the website, navbar, and admin panel.</p>
           </div>
           {loading ? (
-            <p className="py-6 text-center text-sm text-ink-500">Loading…</p>
+            <FormSkeleton />
           ) : (
             <>
               <div className="flex items-start gap-4">
@@ -236,7 +237,7 @@ export default function SettingsPage() {
         <Card className="space-y-5">
           <h2 className="text-base font-bold text-ink-900">Security</h2>
           {loading ? (
-            <p className="py-6 text-center text-sm text-ink-500">Loading…</p>
+            <FormSkeleton />
           ) : (
             <>
               <div className="flex items-center justify-between gap-4">

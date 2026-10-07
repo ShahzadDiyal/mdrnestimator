@@ -6,6 +6,7 @@ import {
   PageHeader, Card, Btn, Field, Input, Textarea, Select,
   Modal, ConfirmState, EmptyState, toast,
 } from '@/components/admin/ui';
+import { FormSkeleton } from '@/components/admin/Skeleton';
 import { IconCheck, IconGlobe, IconPlus, IconTrash, IconRefresh } from '@/components/admin/icons';
 
 const TITLE_LIMIT = 60;
@@ -174,7 +175,7 @@ export default function SeoPage() {
       />
 
       {loading && pages.length === 0 ? (
-        <Card className="py-10 text-center text-sm text-ink-500">Loading SEO pages…</Card>
+        <FormSkeleton />
       ) : pages.length === 0 ? (
         <EmptyState
           icon={<IconGlobe size={22} />}

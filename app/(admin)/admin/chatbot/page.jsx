@@ -7,6 +7,7 @@ import {
   PageHeader, Card, Btn, Badge, Field, Input, Textarea, Select, Toggle, Tabs,
   Modal, TableWrap, thCls, tdCls, toast,
 } from '@/components/admin/ui';
+import { TableSkeleton } from '@/components/admin/Skeleton';
 import { IconPlus, IconTrash, IconBot, IconMessage, IconChart, IconRefresh, IconEye } from '@/components/admin/icons';
 
 function FactRow({ fact, onSave, onDelete }) {
@@ -265,7 +266,7 @@ export default function ChatbotPage() {
         <div className="space-y-4">
           <p className="text-sm text-ink-500">These facts power the Ryan chatbot's answers. Keep them short — Ryan quotes them verbatim.</p>
           {loading && facts.length === 0 && (
-            <Card className="text-center text-sm text-ink-500">Loading facts…</Card>
+            <TableSkeleton />
           )}
           {facts.map((f) => (
             <FactRow key={f.id} fact={f} onSave={saveFact} onDelete={deleteFact} />

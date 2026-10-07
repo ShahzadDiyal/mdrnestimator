@@ -3,6 +3,7 @@
 // Rendered by app/(admin)/layout.jsx around every /admin/* route.
 
 import { useEffect, useMemo, useState } from 'react';
+import { PageSkeleton } from './Skeleton';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
@@ -270,17 +271,7 @@ function ShellGate({ children }) {
   if (isLogin) return <>{children}</>;
 
   if (loading || !user) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#F4F6FB]">
-        <div className="flex flex-col items-center gap-4">
-          <Image src="/logo.png" alt="Modern Estimator" width={1422} height={388} priority className="h-10 w-auto" />
-          <div className="h-1 w-40 overflow-hidden rounded-full bg-slate-200">
-            <div className="h-full w-1/2 animate-pulse rounded-full bg-brand-500" />
-          </div>
-          <p className="text-xs text-ink-400">Verifying session…</p>
-        </div>
-      </div>
-    );
+    return <PageSkeleton />;
   }
 
   return (

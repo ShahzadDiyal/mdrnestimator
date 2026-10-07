@@ -8,6 +8,7 @@ import {
   Drawer, Modal, ConfirmState, TableWrap, thCls, tdCls,
   EmptyState, StatusBadge, SearchInput, toast,
 } from '@/components/admin/ui';
+import { FormSkeleton } from '@/components/admin/Skeleton';
 import { IconEdit, IconTrash, IconMail, IconFileText, IconBell, IconPlus, IconRefresh } from '@/components/admin/icons';
 
 const PROVIDERS = ['Resend', 'SendGrid', 'Amazon SES', 'Mailgun', 'Postmark'];
@@ -266,7 +267,7 @@ export default function EmailPage() {
       {tab === 'setup' && (
         <Card className="max-w-2xl space-y-5">
           {settingsLoading ? (
-            <p className="py-8 text-center text-sm text-ink-500">Loading…</p>
+            <FormSkeleton />
           ) : (
             <>
               <Field label="Email provider" hint="The email service used to send team alerts, auto-replies and quotes.">
@@ -357,7 +358,7 @@ export default function EmailPage() {
       {tab === 'notifications' && (
         <Card className="max-w-2xl divide-y divide-ink-900/5 p-0">
           {settingsLoading ? (
-            <p className="py-8 text-center text-sm text-ink-500">Loading…</p>
+            <FormSkeleton />
           ) : NOTIF_ROWS.map((row) => (
             <div key={row.key} className="flex items-center justify-between gap-4 px-5 py-4">
               <div>
