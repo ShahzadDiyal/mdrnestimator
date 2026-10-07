@@ -24,6 +24,11 @@ export default function SettingsPage() {
     email: '',
     address: '',
   });
+  const [brand, setBrand] = useState({
+    logoUrl: '/logo.png',
+    logoAlt: '',
+    faviconUrl: '',
+  });
   const [security, setSecurity] = useState({
     require2fa: false,
     sessionTimeout: SESSION_TIMEOUTS[0],
@@ -52,6 +57,11 @@ export default function SettingsPage() {
           require2fa: !!data.data.require2fa,
           sessionTimeout: data.data.sessionTimeout || SESSION_TIMEOUTS[0],
           fileRetention: data.data.fileRetention || FILE_RETENTIONS[0],
+        });
+        setBrand({
+          logoUrl: data.data.logoUrl || '/logo.png',
+          logoAlt: data.data.logoAlt || '',
+          faviconUrl: data.data.faviconUrl || '',
         });
       }
     } catch (err) {
@@ -117,6 +127,12 @@ export default function SettingsPage() {
     setSaving(false);
   };
 
+  const saveBrand = async () => {
+    setSaving(true);
+    await putSettings(brand, 'Brand settings saved');
+    setSaving(false);
+  };
+
   const setSec = async (patch, msg) => {
     setSecurity((s) => ({ ...s, ...patch }));
     await putSettings(patch, msg);
@@ -165,6 +181,53 @@ export default function SettingsPage() {
               </Field>
               <div className="flex justify-end border-t border-ink-900/5 pt-5">
                 <Btn onClick={saveGeneral} disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</Btn>
+              </div>
+            </>
+          )}
+        </Card>
+
+        <Card className="space-y-5">
+          <div>
+            <h2 className="text-base font-bold text-ink-900">Brand</h2>
+            <p className="mt-0.5 text-sm text-ink-500">Logo and favicon used across the website, navbar, and admin panel.</p>
+          </div>
+          {loading ? (
+            <p className="py-6 text-center text-sm text-ink-500">Loading…</p>
+          ) : (
+            <>
+              <div className="flex items-start gap-4">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-ink-900/10 bg-slate-50 p-2">
+                  {brand.logoUrl ? (
+                    <img src={brand.logoUrl} alt={brand.logoAlt || 'Logo preview'} className="max-h-full max-w-full object-contain" />
+                  ) : (
+                    <span className="text-xs text-ink-300">No logo</span>
+                  )}
+                </div>
+                <div className="flex-1 space-y-5">
+                  <Field label="Logo image URL" hint="Used in the navbar, admin sidebar, and loading screen.">
+                    <Input value={brand.logoUrl} onChange={(e) => setBrand({ ...brand, logoUrl: e.target.value })} placeholder="/logo.png or https://…" className="font-mono" />
+                  </Field>
+                  <Field label="Logo alt text">
+                    <Input value={brand.logoAlt} onChange={(e) => setBrand({ ...brand, logoAlt: e.target.value })} placeholder="Modern Estimator" />
+                  </Field>
+                </div>
+              </div>
+              <div className="flex items-start gap-4">
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-ink-900/10 bg-slate-50 p-2">
+                  {brand.faviconUrl ? (
+                    <img src={brand.faviconUrl} alt="Favicon preview" className="h-8 w-8 object-contain" />
+                  ) : (
+                    <span className="text-xs text-ink-300">No favicon</span>
+                  )}
+                </div>
+                <div className="flex-1">
+                  <Field label="Favicon URL" hint="Small icon shown in the browser tab. Use a 32×32 or 64×64 PNG/ICO.">
+                    <Input value={brand.faviconUrl} onChange={(e) => setBrand({ ...brand, faviconUrl: e.target.value })} placeholder="https://…/favicon.png" className="font-mono" />
+                  </Field>
+                </div>
+              </div>
+              <div className="flex justify-end border-t border-ink-900/5 pt-5">
+                <Btn onClick={saveBrand} disabled={saving}>{saving ? 'Saving…' : 'Save changes'}</Btn>
               </div>
             </>
           )}

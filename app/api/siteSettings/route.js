@@ -11,6 +11,9 @@ export const SEED_SITE_SETTINGS = {
   "phone": "+1 (555) 123-4567",
   "email": "hello@modernestimator.com",
   "address": "1200 Commerce St, Suite 400, Austin, TX 78701",
+  "logoUrl": "/logo.png",
+  "logoAlt": "Modern Estimator",
+  "faviconUrl": "",
   "require2fa": false,
   "sessionTimeout": "8 hours",
   "fileRetention": "24 months"
