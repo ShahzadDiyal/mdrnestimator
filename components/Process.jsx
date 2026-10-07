@@ -1,39 +1,30 @@
-const STEPS = [
-  {
-    num: '01',
-    title: 'Send Your Plans',
-    desc: 'Upload drawings, specs and scope. We respond in under 2 hours with timeline & price.',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
-    ),
-  },
-  {
-    num: '02',
-    title: 'Detailed Review',
-    desc: 'Senior estimator reviews plans, requests RFIs and confirms the scope of work.',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-    ),
-  },
-  {
-    num: '03',
-    title: 'Takeoff & Pricing',
-    desc: 'We perform the takeoff and price every line with current regional cost data.',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
-    ),
-  },
-  {
-    num: '04',
-    title: 'Bid-Ready Delivery',
-    desc: 'Receive a polished, CSI-coded estimate in Excel + PDF — ready to submit.',
-    icon: (
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>
-    ),
-  },
+'use client';
+
+import { useSiteContent } from '@/lib/useSiteContent';
+
+const ICONS = [
+  <svg key="p1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>,
+  <svg key="p2" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>,
+  <svg key="p3" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>,
+  <svg key="p4" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>,
+];
+
+const FALLBACK_STEPS = [
+  { id: 'fb-p1', num: '01', title: 'Send Your Plans', desc: 'Upload drawings, specs and scope. We respond in under 2 hours with timeline & price.' },
+  { id: 'fb-p2', num: '02', title: 'Detailed Review', desc: 'Senior estimator reviews plans, requests RFIs and confirms the scope of work.' },
+  { id: 'fb-p3', num: '03', title: 'Takeoff & Pricing', desc: 'We perform the takeoff and price every line with current regional cost data.' },
+  { id: 'fb-p4', num: '04', title: 'Bid-Ready Delivery', desc: 'Receive a polished, CSI-coded estimate in Excel + PDF — ready to submit.' },
 ];
 
 export default function Process() {
+  const content = useSiteContent();
+
+  // Admin can hide this section from Website Content → Visibility.
+  if (content && content.loaded && content.sections?.process === false) return null;
+
+  const live = !!(content && content.loaded && content.processSteps && content.processSteps.length);
+  const list = live ? content.processSteps : FALLBACK_STEPS;
+
   return (
     <section className="py-20 sm:py-24">
       <div className="max-shell container-px">
@@ -46,11 +37,11 @@ export default function Process() {
           {/* Connector line through the node centers (desktop) */}
           <div className="hidden lg:block absolute top-8 left-[12.5%] right-[12.5%] h-0.5 bg-gradient-to-r from-brand-200 via-brand-300 to-accent-400"></div>
 
-          {STEPS.map((s) => (
-            <div key={s.num} className="group relative flex flex-col items-center text-center reveal">
+          {list.map((s, i) => (
+            <div key={s.id || s.num} className="group relative flex flex-col items-center text-center reveal">
               {/* Numbered node */}
               <div className="relative z-10 grid place-items-center h-16 w-16 rounded-2xl bg-brand-700 text-white shadow-soft ring-4 ring-white transition duration-300 group-hover:bg-brand-600">
-                {s.icon}
+                {ICONS[i % ICONS.length]}
                 <span className="absolute -top-2 -right-2 grid place-items-center h-7 w-7 rounded-full bg-accent-500 text-[11px] font-extrabold text-white ring-2 ring-white">{s.num}</span>
               </div>
 
