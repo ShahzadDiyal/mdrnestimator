@@ -22,8 +22,34 @@ export default function ChatBot() {
   const [messages, setMessages] = useState([GREETING]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [agentName, setAgentName] = useState(AGENT_NAME);
+  const [chatEnabled, setChatEnabled] = useState(true);
+  const [showFloatingIcon, setShowFloatingIcon] = useState(true);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
+
+  // Live chatbot settings (agent name, welcome message, visibility).
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/chatbotSettings')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json) => {
+        if (!alive || !json || !json.data) return;
+        const s = json.data;
+        if (s.agentName) setAgentName(s.agentName);
+        if (s.welcomeMessage) {
+          setMessages((prev) =>
+            prev.length === 1 && prev[0].role === 'assistant'
+              ? [{ role: 'assistant', content: s.welcomeMessage }]
+              : prev
+          );
+        }
+        if (s.enabled === false) setChatEnabled(false);
+        if (s.showFloatingIcon === false) setShowFloatingIcon(false);
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
 
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
@@ -92,9 +118,12 @@ export default function ChatBot() {
 
   const showQuickReplies = messages.length <= 1;
 
+  if (!chatEnabled) return null;
+
   return (
     <>
       {/* Launcher button */}
+      {showFloatingIcon && (
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={open ? 'Close chat' : 'Chat with us'}
@@ -113,6 +142,7 @@ export default function ChatBot() {
           <span className="hidden sm:inline text-sm font-semibold pr-1">{open ? 'Close' : 'Chat with us'}</span>
         </span>
       </button>
+      )}
 
       {/* Chat panel */}
       {open && (
@@ -120,11 +150,11 @@ export default function ChatBot() {
           {/* Header */}
           <div className="flex items-center gap-3 bg-hero-gradient px-4 py-3 text-white">
             <span className="relative grid place-items-center h-10 w-10 rounded-full ring-2 ring-white/30 overflow-hidden">
-              <Image src="/agent.png" alt={AGENT_NAME} width={40} height={40} className="h-full w-full object-cover" />
+              <Image src="/agent.png" alt={agentName} width={40} height={40} className="h-full w-full object-cover" />
               <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-[#14284A]"></span>
             </span>
             <div className="flex-1">
-              <p className="text-sm font-bold leading-tight">{AGENT_NAME} · Estimating Specialist</p>
+              <p className="text-sm font-bold leading-tight">{agentName} · Estimating Specialist</p>
               <p className="flex items-center gap-1.5 text-[11px] text-white/80"><span className="h-1.5 w-1.5 rounded-full bg-emerald-400"></span>Online · replies in seconds</p>
             </div>
             <button onClick={() => setOpen(false)} aria-label="Close chat" className="grid place-items-center h-8 w-8 rounded-full hover:bg-white/15 transition">

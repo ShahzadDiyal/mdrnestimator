@@ -1,6 +1,10 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+
+// Hardcoded fallbacks — used until the quoteOptions API responds.
+const FALLBACK_SERVICES = ['Quantity Takeoff', 'Material Estimation', 'Residential Estimation', 'Commercial Estimation', 'Other'];
+const FALLBACK_PROJECTS = ['Single-Family Home', 'Multi-Family / Townhomes', 'Renovation / Remodel', 'Office / Retail', 'Healthcare', 'Industrial / Warehouse', 'Other'];
 
 const PERKS = [
   {
@@ -40,7 +44,27 @@ export default function QuoteForm() {
   const [status, setStatus] = useState('idle');
   const [errorMsg, setErrorMsg] = useState('');
   const [files, setFiles] = useState([]); // selected drawing files (for display)
+  const [services, setServices] = useState(FALLBACK_SERVICES);
+  const [projects, setProjects] = useState(FALLBACK_PROJECTS);
   const formRef = useRef(null);
+
+  // Live dropdown options from the Quote Form Options API.
+  useEffect(() => {
+    let alive = true;
+    fetch('/api/quoteOptions')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((json) => {
+        if (!alive || !json) return;
+        const opts = Array.isArray(json.options) ? json.options : [];
+        const live = opts.filter((o) => o.status !== 'Draft');
+        const svc = live.filter((o) => o.group === 'service').map((o) => o.label).filter(Boolean);
+        const prj = live.filter((o) => o.group === 'project').map((o) => o.label).filter(Boolean);
+        if (svc.length) setServices(svc);
+        if (prj.length) setProjects(prj);
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, []);
 
   const onFilesChange = (e) => {
     setFiles(Array.from(e.target.files || []));
@@ -121,13 +145,17 @@ export default function QuoteForm() {
               <div className="grid sm:grid-cols-2 gap-5">
                 <div><label className="label">Service Type *</label>
                   <select name="service" required className="input">
-                    <option>Quantity Takeoff</option><option>Material Estimation</option><option>Residential Estimation</option><option>Commercial Estimation</option><option>Other</option>
+                    {services.map((s) => (
+                      <option key={s}>{s}</option>
+                    ))}
                   </select>
                 </div>
                 <div><label className="label">Project Type</label>
                   <select name="projectType" className="input" defaultValue="">
                     <option value="">Select project type</option>
-                    <option>Single-Family Home</option><option>Multi-Family / Townhomes</option><option>Renovation / Remodel</option><option>Office / Retail</option><option>Healthcare</option><option>Industrial / Warehouse</option><option>Other</option>
+                    {projects.map((p) => (
+                      <option key={p}>{p}</option>
+                    ))}
                   </select>
                 </div>
               </div>

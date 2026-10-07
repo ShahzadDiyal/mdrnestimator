@@ -1,5 +1,6 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
+import { getSiteSeo } from '@/lib/site';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -8,38 +9,40 @@ const inter = Inter({
   display: 'swap',
 });
 
-export const metadata = {
-  metadataBase: new URL('https://modernestimator.com'),
-  title: 'Modern Estimator — USA Construction Estimation Services',
-  description:
-    'Premium construction estimation services for US contractors. Quantity takeoffs, material estimation, residential and commercial bid preparation with 8–24 hour turnaround.',
-  keywords: [
-    'construction estimation',
-    'quantity takeoff',
-    'material estimation',
-    'bid preparation',
-    'residential estimation',
-    'commercial estimation',
-    'US contractors',
-  ],
-  alternates: { canonical: '/' },
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://modernestimator.com',
-    siteName: 'Modern Estimator',
-    title: 'Modern Estimator — USA Construction Estimation Services',
-    description:
-      'Quantity takeoffs, material estimation and bid preparation for residential and commercial projects across the United States. Fast turnarounds. Bank-grade accuracy.',
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Modern Estimator — USA Construction Estimation Services',
-    description:
-      'Premium construction estimation services for US contractors. 8–24 hour turnaround. Accurate to ±2%.',
-  },
-  robots: { index: true, follow: true },
-};
+// Site-wide SEO defaults (Website Content → Site SEO), with the current
+// static values as fallback so metadata never degrades.
+export async function generateMetadata() {
+  const s = await getSiteSeo();
+  const title = s?.ogTitle || 'Modern Estimator — USA Construction Estimation Services';
+  const description =
+    s?.ogDescription ||
+    'Premium construction estimation services for US contractors. Quantity takeoffs, material estimation, residential and commercial bid preparation with 8–24 hour turnaround.';
+  return {
+    metadataBase: new URL(s?.siteUrl || 'https://modernestimator.com'),
+    title,
+    description,
+    keywords: (s?.keywords || 'construction estimation, quantity takeoff, material estimation, bid preparation, residential estimation, commercial estimation, US contractors')
+      .split(',')
+      .map((k) => k.trim())
+      .filter(Boolean),
+    alternates: { canonical: '/' },
+    openGraph: {
+      type: s?.ogType || 'website',
+      locale: s?.ogLocale || 'en_US',
+      url: s?.siteUrl || 'https://modernestimator.com',
+      siteName: s?.ogSiteName || 'Modern Estimator',
+      title,
+      description: s?.ogDescription || description,
+      ...(s?.ogImage ? { images: [s.ogImage] } : {}),
+    },
+    twitter: {
+      card: s?.twitterCard || 'summary_large_image',
+      title: s?.twitterTitle || title,
+      description: s?.twitterDescription || description,
+    },
+    robots: { index: s?.robotsIndex !== false, follow: s?.robotsFollow !== false },
+  };
+}
 
 export const viewport = {
   width: 'device-width',
