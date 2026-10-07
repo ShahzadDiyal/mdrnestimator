@@ -2,16 +2,27 @@ import Link from 'next/link';
 import PageHeader from '@/components/PageHeader';
 import CtaBanner from '@/components/CtaBanner';
 import { TRADES } from '@/data/trades';
+import { getTradeTree, getSeoPage } from '@/lib/site';
 
 const BASE_URL = 'https://modernestimator.com';
 
-export const metadata = {
-  title: 'Our Trades — CSI Trade Estimating Services | Modern Estimator',
-  description:
-    'Trade-specific construction estimating and takeoff services for every CSI division: concrete, electrical, MEP, metals, finishes, roofing, sitework, lumber and more. 8–24 hour turnaround.',
-  alternates: { canonical: '/trades' },
-  openGraph: { title: 'Our Trades — CSI Trade Estimating Services', description: 'Specialist estimators for every construction trade. Bid-ready in 8–24 hours.', url: `${BASE_URL}/trades`, type: 'website' },
-};
+// Fresh data at most a minute old — admin edits go live quickly,
+// pages stay fast and fully server-rendered for SEO.
+export const revalidate = 60;
+
+export async function generateMetadata() {
+  const seo = await getSeoPage('/trades');
+  const title = seo?.title || 'Our Trades — CSI Trade Estimating Services | Modern Estimator';
+  const description =
+    seo?.description ||
+    'Trade-specific construction estimating and takeoff services for every CSI division: concrete, electrical, MEP, metals, finishes, roofing, sitework, lumber and more. 8–24 hour turnaround.';
+  return {
+    title,
+    description,
+    alternates: { canonical: '/trades' },
+    openGraph: { title, description, url: `${BASE_URL}/trades`, type: 'website' },
+  };
+}
 
 const WHY = [
   { title: 'A specialist for every division', desc: 'Concrete, MEP, steel, finishes — each trade is estimated by someone who works in it daily.' },
@@ -20,12 +31,15 @@ const WHY = [
   { title: 'Priced to your market', desc: 'Regional material and labor data for all 50 states, refreshed continuously.' },
 ];
 
-export default function TradesPage() {
+export default async function TradesPage() {
+  const live = await getTradeTree();
+  const list = live.length ? live : TRADES;
+
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'Construction Trade Estimating Services',
-    itemListElement: TRADES.map((t, i) => ({ '@type': 'ListItem', position: i + 1, name: t.title, url: `${BASE_URL}/trades/${t.slug}` })),
+    itemListElement: list.map((t, i) => ({ '@type': 'ListItem', position: i + 1, name: t.title, url: `${BASE_URL}/trades/${t.slug}` })),
   };
 
   return (
@@ -65,7 +79,7 @@ export default function TradesPage() {
             <h2 className="mt-3 text-3xl sm:text-4xl font-bold tracking-tight">Choose your trade</h2>
           </div>
           <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {TRADES.map((t, i) => (
+            {list.map((t, i) => (
               <div key={t.slug} className="group flex flex-col rounded-2xl border-2 border-brand-100 bg-white transition duration-300 hover:-translate-y-1 hover:border-brand-500 hover:shadow-soft reveal">
                 <div className="relative flex items-center justify-between overflow-hidden rounded-t-xl bg-brand-700 px-6 py-4 text-white">
                   <span aria-hidden className="absolute inset-0 grid-bg opacity-[0.07]"></span>
@@ -74,7 +88,7 @@ export default function TradesPage() {
                 </div>
                 <div className="flex flex-1 flex-col p-6">
                   <p className="text-sm text-ink-600">{t.tagline}</p>
-                  {t.children.length > 0 && (
+                  {(t.children || []).length > 0 && (
                     <ul className="mt-4 space-y-1.5">
                       {t.children.map((c) => (
                         <li key={c.slug}>

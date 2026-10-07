@@ -2,20 +2,33 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
 import CtaBanner from '@/components/CtaBanner';
-import { getAllTrades, getTrade } from '@/data/trade-pages';
+import { getAllTrades } from '@/data/trade-pages';
 import { SERVICES } from '@/data/services';
+import { getTradeDetail, getTrades } from '@/lib/site';
 
 const BASE_URL = 'https://modernestimator.com';
 
-export function generateStaticParams() {
-  return getAllTrades().map((t) => ({ slug: t.slug }));
+// Fresh data at most a minute old — admin edits go live quickly,
+// pages stay fast and fully server-rendered for SEO.
+export const revalidate = 60;
+// New trade slugs added in admin resolve on demand even if not pre-rendered.
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  try {
+    const trades = await getTrades();
+    const slugs = trades.length ? trades.map((t) => t.slug) : getAllTrades().map((t) => t.slug);
+    return slugs.map((slug) => ({ slug }));
+  } catch {
+    return getAllTrades().map((t) => ({ slug: t.slug }));
+  }
 }
 
-export function generateMetadata({ params }) {
-  const trade = getTrade(params.slug);
+export async function generateMetadata({ params }) {
+  const trade = await getTradeDetail(params.slug);
   if (!trade) return {};
-  const title = trade.meta?.title || `${trade.title} Services — Modern Estimator`;
-  const description = trade.meta?.description || trade.tagline;
+  const title = trade.metaTitle || `${trade.title} Services — Modern Estimator`;
+  const description = trade.metaDescription || trade.tagline;
   return {
     title,
     description,
@@ -67,8 +80,8 @@ const ArrowIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg>
 );
 
-export default function TradeDetailPage({ params }) {
-  const trade = getTrade(params.slug);
+export default async function TradeDetailPage({ params }) {
+  const trade = await getTradeDetail(params.slug);
   if (!trade) notFound();
 
   const h1 = trade.h1 || trade.title;
@@ -83,6 +96,7 @@ export default function TradeDetailPage({ params }) {
   const relatedTitle = trade.parent ? `More in ${trade.parent.title}` : 'Specialized sub-trades';
   const relatedServices = SERVICES.filter((s) => (trade.relatedServices || []).includes(s.slug));
   const faqs = trade.faqs || [];
+  const description = trade.metaDescription || trade.tagline;
 
   /* ---------- structured data ---------- */
   const jsonLd = [
@@ -91,7 +105,7 @@ export default function TradeDetailPage({ params }) {
       '@type': 'Service',
       name: h1,
       serviceType: `${cap(name)} estimating`,
-      description: trade.meta?.description || trade.tagline,
+      description,
       url,
       provider: { '@type': 'Organization', name: 'Modern Estimator', url: BASE_URL },
       areaServed: { '@type': 'Country', name: 'United States' },
@@ -149,7 +163,7 @@ export default function TradeDetailPage({ params }) {
       </section>
 
       {/* ===== Scope ===== */}
-      {trade.scope && (
+      {trade.scope && trade.scope.length > 0 && (
         <section className="bg-brand-50/40 py-16 sm:py-20">
           <div className="max-shell container-px">
             <div className="max-w-3xl reveal">
