@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { SERVICES } from '@/data/services';
 import ServiceCard from '@/components/ServiceCard';
 import { useSiteContent, toArray } from '@/lib/useSiteContent';
+import { ServicesSkeleton } from '@/components/Skeletons';
 
 const iconFor = (slug) => {
   const s = SERVICES.find((x) => x.slug === slug);
@@ -13,8 +14,11 @@ const iconFor = (slug) => {
 export default function Services() {
   const content = useSiteContent();
 
+  // While the live data loads, show a skeleton — never a half-painted section.
+  if (!content) return <ServicesSkeleton />;
+
   // Admin can hide this section from Website Content → Visibility.
-  if (content && content.loaded && content.sections?.services === false) return null;
+  if (content.loaded && content.sections?.services === false) return null;
 
   const live = !!(content && content.loaded && content.services && content.services.length);
   const list = live

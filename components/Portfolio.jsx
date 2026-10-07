@@ -1,6 +1,7 @@
 'use client';
 
 import { useSiteContent, toArray } from '@/lib/useSiteContent';
+import { PortfolioSkeleton } from '@/components/Skeletons';
 
 const FALLBACK_PROJECTS = [
   {
@@ -74,8 +75,11 @@ function PinIcon() {
 export default function Portfolio({ showHeader = true }) {
   const content = useSiteContent();
 
+  // While the live data loads, show a skeleton — never a half-painted section.
+  if (!content) return <PortfolioSkeleton />;
+
   // Admin can hide this section from Website Content → Visibility.
-  if (content && content.loaded && content.sections?.portfolio === false) return null;
+  if (content.loaded && content.sections?.portfolio === false) return null;
 
   const live = !!(content && content.loaded && content.portfolio && content.portfolio.length);
   const list = live ? content.portfolio : FALLBACK_PROJECTS;

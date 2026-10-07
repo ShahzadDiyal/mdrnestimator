@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useSiteContent } from '@/lib/useSiteContent';
+import { HeroSkeleton } from '@/components/Skeletons';
 
 const STARS = '★★★★★';
 
@@ -15,8 +16,11 @@ const FALLBACK_BADGES = [
 export default function Hero() {
   const content = useSiteContent();
 
+  // While the live data loads, show a skeleton — never a half-painted section.
+  if (!content) return <HeroSkeleton />;
+
   // Admin can hide this section from Website Content → Visibility.
-  if (content && content.loaded && content.sections?.hero === false) return null;
+  if (content.loaded && content.sections?.hero === false) return null;
 
   const hero = content?.hero || {};
   const live = !!(content && content.loaded);

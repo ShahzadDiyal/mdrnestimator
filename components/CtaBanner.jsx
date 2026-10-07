@@ -3,12 +3,16 @@
 import Link from 'next/link';
 import ChatButton from '@/components/ChatButton';
 import { useSiteContent } from '@/lib/useSiteContent';
+import { CtaSkeleton } from '@/components/Skeletons';
 
 export default function CtaBanner() {
   const content = useSiteContent();
 
+  // While the live data loads, show a skeleton — never a half-painted section.
+  if (!content) return <CtaSkeleton />;
+
   // Admin can hide this section from Website Content → Visibility.
-  if (content && content.loaded && content.sections?.ctaBanner === false) return null;
+  if (content.loaded && content.sections?.ctaBanner === false) return null;
 
   const b = content?.ctaBanner || {};
   const badge = b.badge ?? 'Free Quote — No Obligation';

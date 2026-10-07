@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useSiteContent } from '@/lib/useSiteContent';
+import { StatsSkeleton } from '@/components/Skeletons';
 
 const ICONS = [
   <svg key="i1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg>,
@@ -20,9 +21,6 @@ const FALLBACK_STATS = [
 export default function Stats() {
   const content = useSiteContent();
   const rootRef = useRef(null);
-
-  // Admin can hide this section from Website Content → Visibility.
-  if (content && content.loaded && content.sections?.stats === false) return null;
 
   const live = !!(content && content.loaded && content.stats && content.stats.length);
   const list = live ? content.stats : FALLBACK_STATS;
@@ -57,6 +55,12 @@ export default function Stats() {
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
   }, [animKey, list.length]);
+
+  // While the live data loads, show a skeleton — never a half-painted section.
+  if (!content) return <StatsSkeleton />;
+
+  // Admin can hide this section from Website Content → Visibility.
+  if (content.loaded && content.sections?.stats === false) return null;
 
   return (
     <section className="relative -mt-16 z-10" ref={rootRef}>

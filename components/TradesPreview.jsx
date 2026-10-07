@@ -3,13 +3,17 @@
 import Link from 'next/link';
 import { TRADES } from '@/data/trades';
 import { useSiteContent } from '@/lib/useSiteContent';
+import { TradesSkeleton } from '@/components/Skeletons';
 
 // Home-page section linking to every parent trade — internal-linking hub for /trades/*.
 export default function TradesPreview() {
   const content = useSiteContent();
 
+  // While the live data loads, show a skeleton — never a half-painted section.
+  if (!content) return <TradesSkeleton />;
+
   // Admin can hide this section from Website Content → Visibility.
-  if (content && content.loaded && content.sections?.trades === false) return null;
+  if (content.loaded && content.sections?.trades === false) return null;
 
   const live = !!(content && content.loaded && content.trades && content.trades.length);
   const all = live ? content.trades : [];

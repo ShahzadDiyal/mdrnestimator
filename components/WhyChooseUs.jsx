@@ -1,6 +1,7 @@
 'use client';
 
 import { useSiteContent } from '@/lib/useSiteContent';
+import { WhySkeleton } from '@/components/Skeletons';
 
 const ICONS = [
   <svg key="w1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
@@ -23,8 +24,11 @@ const FALLBACK_FEATURES = [
 export default function WhyChooseUs() {
   const content = useSiteContent();
 
+  // While the live data loads, show a skeleton — never a half-painted section.
+  if (!content) return <WhySkeleton />;
+
   // Admin can hide this section from Website Content → Visibility.
-  if (content && content.loaded && content.sections?.whyChooseUs === false) return null;
+  if (content.loaded && content.sections?.whyChooseUs === false) return null;
 
   const live = !!(content && content.loaded && content.whyChooseUs && content.whyChooseUs.length);
   const list = live ? content.whyChooseUs : FALLBACK_FEATURES;

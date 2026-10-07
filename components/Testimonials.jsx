@@ -1,6 +1,7 @@
 'use client';
 
 import { useSiteContent } from '@/lib/useSiteContent';
+import { TestimonialsSkeleton } from '@/components/Skeletons';
 
 const FALLBACK_TESTIMONIALS = [
   {
@@ -34,8 +35,11 @@ const stars = (n) => '★★★★★'.slice(0, Math.max(0, Math.min(5, Number(n
 export default function Testimonials() {
   const content = useSiteContent();
 
+  // While the live data loads, show a skeleton — never a half-painted section.
+  if (!content) return <TestimonialsSkeleton />;
+
   // Admin can hide this section from Website Content → Visibility.
-  if (content && content.loaded && content.sections?.testimonials === false) return null;
+  if (content.loaded && content.sections?.testimonials === false) return null;
 
   const live = !!(content && content.loaded && content.testimonials && content.testimonials.length);
   const list = live ? content.testimonials : FALLBACK_TESTIMONIALS;

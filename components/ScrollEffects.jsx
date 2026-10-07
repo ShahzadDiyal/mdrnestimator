@@ -24,21 +24,19 @@ export default function ScrollEffects() {
     let io;
     let co;
     let barTimer;
+    let mo;
 
     const raf = requestAnimationFrame(() => {
-      // Reveal on scroll
-      const reveals = document.querySelectorAll('.reveal:not(.in):not([data-reveal-self])');
-
-      // Immediately reveal elements already in viewport (above the fold).
-      reveals.forEach((el) => {
+      const revealNow = (el) => {
         const rect = el.getBoundingClientRect();
         if (rect.top < window.innerHeight && rect.bottom > 0) {
           el.classList.add('in');
+          return true;
         }
-      });
+        return false;
+      };
 
-      // Observe remaining hidden elements for scroll-triggered reveal.
-      const remaining = document.querySelectorAll('.reveal:not(.in):not([data-reveal-self])');
+      // Observe hidden elements for scroll-triggered reveal.
       io = new IntersectionObserver(
         (entries) => {
           entries.forEach((e) => {
@@ -50,7 +48,33 @@ export default function ScrollEffects() {
         },
         { threshold: 0.05 }
       );
-      remaining.forEach((el) => io.observe(el));
+
+      const watchReveals = (root) => {
+        root.querySelectorAll('.reveal:not(.in):not([data-reveal-self])').forEach((el) => {
+          if (!revealNow(el)) io.observe(el);
+        });
+      };
+
+      // Elements present at load.
+      watchReveals(document);
+
+      // Elements added later (API-loaded sections): without this they would
+      // stay at opacity:0 forever because the one-time query above missed them.
+      mo = new MutationObserver((mutations) => {
+        mutations.forEach((m) => {
+          m.addedNodes.forEach((node) => {
+            if (!(node instanceof Element)) return;
+            if (node.matches('.reveal:not(.in):not([data-reveal-self])')) {
+              if (!revealNow(node)) io.observe(node);
+            }
+            const nested = node.querySelectorAll('.reveal:not(.in):not([data-reveal-self])');
+            nested.forEach((el) => {
+              if (!revealNow(el)) io.observe(el);
+            });
+          });
+        });
+      });
+      mo.observe(document.body, { childList: true, subtree: true });
 
       // Counters
       const counters = document.querySelectorAll('.counter');
@@ -90,6 +114,7 @@ export default function ScrollEffects() {
       cancelAnimationFrame(raf);
       if (io) io.disconnect();
       if (co) co.disconnect();
+      if (mo) mo.disconnect();
       if (barTimer) clearTimeout(barTimer);
     };
   }, [pathname]);

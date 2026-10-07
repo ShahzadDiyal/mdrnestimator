@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useSiteContent } from '@/lib/useSiteContent';
+import { FaqSkeleton } from '@/components/Skeletons';
 
 const FALLBACK_FAQS = [
   {
@@ -39,9 +40,8 @@ const FALLBACK_FAQS = [
 export default function Faq() {
   const content = useSiteContent();
   const [openIndex, setOpenIndex] = useState(0);
-
-  // Admin can hide this section from Website Content → Visibility.
-  if (content && content.loaded && content.sections?.faq === false) return null;
+  const [revealed, setRevealed] = useState(() => new Set());
+  const itemRefs = useRef([]);
 
   const live = !!(content && content.loaded && content.faqs && content.faqs.length);
   const list = live ? content.faqs : FALLBACK_FAQS;
@@ -57,9 +57,6 @@ export default function Faq() {
   // Toggling a question changes this element's className prop, so React rewrites
   // the class string — an externally-added `in` would be wiped and the item would
   // snap back to opacity:0 and disappear.
-  const [revealed, setRevealed] = useState(() => new Set());
-  const itemRefs = useRef([]);
-
   useEffect(() => {
     const io = new IntersectionObserver(
       (entries) => {
@@ -80,6 +77,12 @@ export default function Faq() {
     itemRefs.current.forEach((el) => el && io.observe(el));
     return () => io.disconnect();
   }, [listKey]);
+
+  // While the live data loads, show a skeleton — never a half-painted section.
+  if (!content) return <FaqSkeleton />;
+
+  // Admin can hide this section from Website Content → Visibility.
+  if (content.loaded && content.sections?.faq === false) return null;
 
   return (
     <section className="py-20 sm:py-24 bg-brand-50/30">
