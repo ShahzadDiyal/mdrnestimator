@@ -2,15 +2,37 @@ import PageHeader from '@/components/PageHeader';
 import ServiceCard from '@/components/ServiceCard';
 import CtaBanner from '@/components/CtaBanner';
 import { SERVICES } from '@/data/services';
+import { getServices, getSeoPage, toArray } from '@/lib/site';
 
-export const metadata = {
-  title: 'Construction Estimating Services — Modern Estimator',
-  description:
-    'Quantity takeoff, material estimation, residential and commercial estimating, bid preparation and trade-specific estimates for US contractors. 8–24 hour turnaround.',
-  alternates: { canonical: '/services' },
-};
+// Fresh data at most a minute old — admin edits go live quickly,
+// pages stay fast and fully server-rendered for SEO.
+export const revalidate = 60;
 
-export default function ServicesPage() {
+export async function generateMetadata() {
+  const seo = await getSeoPage('/services');
+  return {
+    title: seo?.title || 'Construction Estimating Services — Modern Estimator',
+    description:
+      seo?.description ||
+      'Quantity takeoff, material estimation, residential and commercial estimating, bid preparation and trade-specific estimates for US contractors. 8–24 hour turnaround.',
+    alternates: { canonical: '/services' },
+  };
+}
+
+const iconFor = (slug) => SERVICES.find((x) => x.slug === slug)?.icon || null;
+
+export default async function ServicesPage() {
+  const live = await getServices();
+  const cards = live.length
+    ? live.map((s) => ({
+        slug: s.slug,
+        title: s.title,
+        short: s.short || s.tagline || '',
+        points: toArray(s.points).slice(0, 4),
+        icon: iconFor(s.slug),
+      }))
+    : SERVICES;
+
   return (
     <>
       <PageHeader
@@ -22,7 +44,7 @@ export default function ServicesPage() {
       <section className="py-20 sm:py-24">
         <div className="max-shell container-px">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {SERVICES.map((s, i) => (
+            {cards.map((s, i) => (
               <ServiceCard key={s.slug} service={s} index={i} />
             ))}
           </div>

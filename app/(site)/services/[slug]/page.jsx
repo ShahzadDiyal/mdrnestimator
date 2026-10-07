@@ -4,6 +4,13 @@ import PageHeader from '@/components/PageHeader';
 import CtaBanner from '@/components/CtaBanner';
 import { SERVICES, getService } from '@/data/services';
 import { getAllTrades } from '@/data/trade-pages';
+import { getServices, getServiceBySlug, getTrades, toArray, toParagraphs } from '@/lib/site';
+
+// Fresh data at most a minute old — admin edits go live quickly,
+// pages stay fast and fully server-rendered for SEO.
+export const revalidate = 60;
+// New slugs added in admin resolve on demand even if not pre-rendered.
+export const dynamicParams = true;
 
 // Trades most relevant to each service — powers the "Related trades" cross-links.
 const SERVICE_TRADES = {
@@ -15,35 +22,58 @@ const SERVICE_TRADES = {
   'trade-specific-estimates': ['concrete-estimating', 'electrical-estimating', 'mep-estimating', 'metals-estimating', 'interior-exterior-finishes', 'thermal-moisture-protection-estimating'],
 };
 
-export function generateStaticParams() {
-  return SERVICES.map((s) => ({ slug: s.slug }));
+const iconFor = (slug) => SERVICES.find((x) => x.slug === slug)?.icon || null;
+
+export async function generateStaticParams() {
+  try {
+    const services = await getServices();
+    const list = services.length ? services : SERVICES;
+    return list.map((s) => ({ slug: s.slug }));
+  } catch {
+    return SERVICES.map((s) => ({ slug: s.slug }));
+  }
 }
 
-export function generateMetadata({ params }) {
-  const service = getService(params.slug);
+export async function generateMetadata({ params }) {
+  const service = (await getServiceBySlug(params.slug)) || getService(params.slug);
   if (!service) return {};
   return {
-    title: `${service.title} — Modern Estimator`,
-    description: service.tagline,
+    title: service.metaTitle || `${service.title} — Modern Estimator`,
+    description: service.metaDescription || service.tagline || service.short || '',
     alternates: { canonical: `/services/${service.slug}` },
   };
 }
 
-export default function ServiceDetailPage({ params }) {
-  const service = getService(params.slug);
-  if (!service) notFound();
+export default async function ServiceDetailPage({ params }) {
+  const raw = (await getServiceBySlug(params.slug)) || getService(params.slug);
+  if (!raw) notFound();
 
-  const others = SERVICES.filter((s) => s.slug !== service.slug).slice(0, 4);
-  const allTrades = getAllTrades();
+  const service = {
+    ...raw,
+    icon: iconFor(raw.slug),
+    overview: toParagraphs(raw.overview),
+    includes: toArray(raw.includes),
+    deliverables: toArray(raw.deliverables),
+  };
+
+  const liveServices = await getServices();
+  const all = liveServices.length ? liveServices : SERVICES;
+  const others = all
+    .filter((s) => s.slug !== service.slug)
+    .slice(0, 4)
+    .map((s) => ({ slug: s.slug, title: s.title, icon: iconFor(s.slug) }));
+
+  const liveTrades = await getTrades();
+  const tradePool = liveTrades.length ? liveTrades : getAllTrades();
   const relatedTrades = (SERVICE_TRADES[service.slug] || [])
-    .map((slug) => allTrades.find((t) => t.slug === slug))
+    .map((slug) => tradePool.find((t) => t.slug === slug))
     .filter(Boolean);
 
   return (
     <>
       <PageHeader
         eyebrow="Service"
-        title={service.title}
+        title={service.h1 || service.title}
         subtitle={service.tagline}
         crumbs={[{ label: 'Services', href: '/services' }, { label: service.title }]}
       />
@@ -60,25 +90,33 @@ export default function ServiceDetailPage({ params }) {
               ))}
             </div>
 
-            <h2 className="mt-10 text-2xl font-bold reveal">What&apos;s included</h2>
-            <ul className="mt-5 grid gap-3 sm:grid-cols-2 reveal">
-              {service.includes.map((item) => (
-                <li key={item} className="flex items-start gap-3 rounded-xl border border-brand-100 bg-white p-3.5">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-500 shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-                  <span className="text-sm font-medium text-ink-700">{item}</span>
-                </li>
-              ))}
-            </ul>
+            {service.includes.length > 0 && (
+              <>
+                <h2 className="mt-10 text-2xl font-bold reveal">What&apos;s included</h2>
+                <ul className="mt-5 grid gap-3 sm:grid-cols-2 reveal">
+                  {service.includes.map((item) => (
+                    <li key={item} className="flex items-start gap-3 rounded-xl border border-brand-100 bg-white p-3.5">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-accent-500 shrink-0 mt-0.5"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                      <span className="text-sm font-medium text-ink-700">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
 
-            <h2 className="mt-10 text-2xl font-bold reveal">What you receive</h2>
-            <div className="mt-5 grid gap-4 sm:grid-cols-3 reveal">
-              {service.deliverables.map((d) => (
-                <div key={d} className="rounded-2xl border-2 border-brand-100 bg-white p-5">
-                  <span className="grid place-items-center h-10 w-10 rounded-xl bg-brand-50 text-brand-600"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg></span>
-                  <p className="mt-3 text-sm font-semibold text-ink-800">{d}</p>
+            {service.deliverables.length > 0 && (
+              <>
+                <h2 className="mt-10 text-2xl font-bold reveal">What you receive</h2>
+                <div className="mt-5 grid gap-4 sm:grid-cols-3 reveal">
+                  {service.deliverables.map((d) => (
+                    <div key={d} className="rounded-2xl border-2 border-brand-100 bg-white p-5">
+                      <span className="grid place-items-center h-10 w-10 rounded-xl bg-brand-50 text-brand-600"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="m9 15 2 2 4-4"/></svg></span>
+                      <p className="mt-3 text-sm font-semibold text-ink-800">{d}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </>
+            )}
           </div>
 
           {/* Sidebar */}
