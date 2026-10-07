@@ -71,7 +71,11 @@ function Sidebar({ open, onClose, user }) {
   const { state } = useStore();
   const { logout } = useAuth();
   const router = useRouter();
-  const [openSection, setOpenSection] = useState('Main');
+  const isActive = (href) => pathname === href || (href !== '/admin/dashboard' && pathname.startsWith(href + '/'));
+  const [openSection, setOpenSection] = useState(() => {
+    const found = NAV.find((s) => s.items.some((i) => isActive(i.href)));
+    return found ? found.section : 'Main';
+  });
 
   const sections = useMemo(
     () => NAV.filter((s) => !s.adminOnly || isAdmin(user)),
@@ -86,9 +90,9 @@ function Sidebar({ open, onClose, user }) {
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between px-5 pb-5 pt-6">
+        <div className="flex items-center justify-between px-5 pb-4 pt-5">
           <Link href="/admin/dashboard" className="flex items-center gap-2.5" onClick={onClose}>
-            <Image src="/logo.png" alt="Modern Estimator" width={1422} height={388} priority className="h-8 w-auto brightness-0 invert" />
+            <Image src="/logo.png" alt="Modern Estimator" width={1422} height={388} priority className="h-7 w-auto brightness-0 invert" />
             <span className="text-[11px] font-bold text-white/60 uppercase tracking-wider border-l border-white/20 pl-2.5">Admin</span>
           </Link>
           <button onClick={onClose} className="rounded-lg p-1.5 text-white/60 hover:bg-white/10 lg:hidden" aria-label="Close menu">
@@ -96,22 +100,22 @@ function Sidebar({ open, onClose, user }) {
           </button>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 pb-4">
+        <nav className="flex-1 min-h-0 overflow-y-auto px-3 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {sections.map((sec) => {
             const collapsed = openSection !== sec.section && sec.section !== 'Main';
             return (
-              <div key={sec.section} className="mb-2">
+              <div key={sec.section} className="mb-1.5">
                 <button
                   onClick={() => setOpenSection(collapsed ? sec.section : 'Main')}
-                  className="flex w-full items-center justify-between px-3 py-2 text-[11px] font-bold uppercase tracking-widest text-white/50 hover:text-white/80"
+                  className="flex w-full items-center justify-between px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/50 hover:text-white/80"
                 >
                   {sec.section}
-                  <IconChevronDown size={14} className={`transition-transform ${collapsed ? '-rotate-90' : ''}`} />
+                  <IconChevronDown size={13} className={`transition-transform ${collapsed ? '-rotate-90' : ''}`} />
                 </button>
                 {!collapsed && (
                   <ul className="space-y-0.5">
                     {sec.items.map((item) => {
-                      const active = pathname === item.href || (item.href !== '/admin/dashboard' && pathname.startsWith(item.href));
+                      const active = isActive(item.href);
                       const badge = item.badge && state ? item.badge(state) : null;
                       const Icon = item.icon;
                       return (
@@ -119,14 +123,14 @@ function Sidebar({ open, onClose, user }) {
                           <Link
                             href={item.href}
                             onClick={onClose}
-                            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${
+                            className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all ${
                               active ? 'bg-white/15 text-white shadow-inner' : 'text-white/70 hover:bg-white/5 hover:text-white'
                             }`}
                           >
-                            <Icon size={18} className={active ? 'text-accent-300' : 'text-white/50'} />
-                            <span className="flex-1">{item.label}</span>
+                            <Icon size={16} className={active ? 'text-accent-300' : 'text-white/50'} />
+                            <span className="flex-1 truncate">{item.label}</span>
                             {badge ? (
-                              <span className="rounded-full bg-accent-500 px-2 py-0.5 text-[11px] font-bold text-white">{badge}</span>
+                              <span className="rounded-full bg-accent-500 px-2 py-0.5 text-[10px] font-bold text-white">{badge}</span>
                             ) : null}
                           </Link>
                         </li>
@@ -139,21 +143,21 @@ function Sidebar({ open, onClose, user }) {
           })}
         </nav>
 
-        <div className="border-t border-white/10 p-4">
+        <div className="border-t border-white/10 p-3">
           <Link
             href="/"
             target="_blank"
-            className="mb-3 flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-white/60 hover:bg-white/5 hover:text-white"
+            className="mb-2 flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[13px] text-white/60 hover:bg-white/5 hover:text-white"
           >
-            <IconExternal size={16} /> View website
+            <IconExternal size={15} /> View website
           </Link>
-          <div className="flex items-center gap-3 rounded-xl bg-white/5 p-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent-500 text-sm font-bold text-white">
+          <div className="flex items-center gap-2.5 rounded-lg bg-white/5 p-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-500 text-[13px] font-bold text-white">
               {user?.name?.charAt(0) || user?.email?.charAt(0)?.toUpperCase() || 'A'}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-semibold">{user?.name || user?.email?.split('@')[0]}</p>
-              <p className="text-xs text-white/50">{user?.role || 'Admin'}</p>
+              <p className="truncate text-[13px] font-semibold">{user?.name || user?.email?.split('@')[0]}</p>
+              <p className="text-[11px] text-white/50">{user?.role || 'Admin'}</p>
             </div>
             <button
               onClick={async () => {
@@ -164,7 +168,7 @@ function Sidebar({ open, onClose, user }) {
               title="Log out"
               aria-label="Log out"
             >
-              <IconLogout size={17} />
+              <IconLogout size={16} />
             </button>
           </div>
         </div>
