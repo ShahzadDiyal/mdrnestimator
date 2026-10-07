@@ -15,7 +15,7 @@ import {
   IconLogout, IconSearch, IconBell, IconMenu,
   IconX, IconExternal, IconChevronDown, IconUsers, IconFileText, IconLayers,
   IconHelp, IconStar, IconPen, IconShield, IconClock, IconSend, IconBriefcase,
-  IconChart, IconImage, IconPhone, IconGlobe, IconBot, IconMail, IconSettings,
+  IconChart, IconImage, IconPhone, IconGlobe, IconBot, IconMail, IconSettings, IconEye,
 } from './icons';
 
 const NAV = [
@@ -53,6 +53,7 @@ const NAV = [
       { href: '/admin/content/contact', label: 'Contact Details', icon: IconPhone },
       { href: '/admin/content/seo', label: 'SEO Meta', icon: IconGlobe },
       { href: '/admin/content/site-seo', label: 'Site SEO', icon: IconGlobe },
+      { href: '/admin/content/visibility', label: 'Visibility', icon: IconEye },
       { href: '/admin/chatbot', label: 'Chatbot', icon: IconBot },
       { href: '/admin/email', label: 'Email & Notifications', icon: IconMail },
       { href: '/admin/settings', label: 'Site Settings', icon: IconSettings },
