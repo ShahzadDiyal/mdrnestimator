@@ -107,7 +107,7 @@ export default function ChatBot() {
           role: 'assistant',
           content:
             (err && err.message) ||
-            'Sorry — I could not reach the assistant. Please email hello@blueprintestimators.com.',
+            'Sorry — I could not reach the assistant. Please email hello@modernestimator.com.',
         };
         return next;
       });
