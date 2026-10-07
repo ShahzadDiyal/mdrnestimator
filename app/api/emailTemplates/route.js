@@ -66,7 +66,7 @@ export async function POST(request) {
   try {
     const body = await request.json();
     const {
-      slug, name, subject, body, status
+      slug, name, subject, body: templateBody, status
     } = body;
 
     if (!name || !name.trim()) {
@@ -80,7 +80,7 @@ export async function POST(request) {
       id: templateId,
       name: name.trim(),
       subject: subject ? subject.trim() : '',
-      body: body ? body.trim() : '',
+      body: templateBody ? templateBody.trim() : '',
       status: status || 'Published',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
