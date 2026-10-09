@@ -2,7 +2,7 @@ import PageHeader from '@/components/PageHeader';
 import ServiceCard from '@/components/ServiceCard';
 import CtaBanner from '@/components/CtaBanner';
 import { SERVICES } from '@/data/services';
-import { getServices, getSeoPage, toArray } from '@/lib/site';
+import { getServices, getSeoPage, toArray, socialMeta } from '@/lib/site';
 
 // Fresh data at most a minute old — admin edits go live quickly,
 // pages stay fast and fully server-rendered for SEO.
@@ -10,12 +10,15 @@ export const revalidate = 60;
 
 export async function generateMetadata() {
   const seo = await getSeoPage('/services');
+  const title = seo?.title || 'Construction Estimating Services — Modern Estimator';
+  const description =
+    seo?.description ||
+    'Quantity takeoff, material estimation, residential and commercial estimating, bid preparation and trade-specific estimates for US contractors. 8–24 hour turnaround.';
   return {
-    title: seo?.title || 'Construction Estimating Services — Modern Estimator',
-    description:
-      seo?.description ||
-      'Quantity takeoff, material estimation, residential and commercial estimating, bid preparation and trade-specific estimates for US contractors. 8–24 hour turnaround.',
+    title,
+    description,
     alternates: { canonical: '/services' },
+    ...socialMeta({ title, description, path: '/services' }),
   };
 }
 
@@ -33,8 +36,21 @@ export default async function ServicesPage() {
       }))
     : SERVICES;
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Construction Estimating Services',
+    itemListElement: cards.map((s, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: s.title,
+      url: `https://modernestimator.com/services/${s.slug}`,
+    })),
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <PageHeader
         eyebrow="Our Services"
         title="Construction estimating services built to win you work"

@@ -3,7 +3,7 @@ import PageHeader from '@/components/PageHeader';
 import Stats from '@/components/Stats';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import CtaBanner from '@/components/CtaBanner';
-import { getAboutPage, getSeoPage, toArray, toParagraphs } from '@/lib/site';
+import { getAboutPage, getSeoPage, toArray, toParagraphs, socialMeta } from '@/lib/site';
 
 // Fresh data at most a minute old — admin edits go live quickly,
 // pages stay fast and fully server-rendered for SEO.
@@ -11,12 +11,15 @@ export const revalidate = 60;
 
 export async function generateMetadata() {
   const seo = await getSeoPage('/about');
+  const title = seo?.title || 'About Us — Modern Estimator';
+  const description =
+    seo?.description ||
+    'Modern Estimator is a US construction estimating company delivering accurate, CSI-coded quantity takeoffs and bid-ready estimates with a 8–24 hour turnaround.';
   return {
-    title: seo?.title || 'About Us — Modern Estimator',
-    description:
-      seo?.description ||
-      'Modern Estimator is a US construction estimating company delivering accurate, CSI-coded quantity takeoffs and bid-ready estimates with a 8–24 hour turnaround.',
+    title,
+    description,
     alternates: { canonical: '/about' },
+    ...socialMeta({ title, description, path: '/about' }),
   };
 }
 

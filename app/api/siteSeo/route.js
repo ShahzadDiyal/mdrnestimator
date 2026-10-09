@@ -39,6 +39,10 @@ export const SEED_SITE_SEO = {
   // Schema.org — rating
   ratingValue: '4.9',
   reviewCount: '320',
+  // Verification & analytics
+  googleVerification: '',
+  bingVerification: '',
+  gaMeasurementId: '',
   // Sitemap
   sitemapChangeFreq: 'monthly',
   sitemapHomePriority: '1',

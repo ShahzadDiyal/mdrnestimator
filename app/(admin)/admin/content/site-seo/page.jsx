@@ -21,6 +21,9 @@ const emptyForm = {
   twitterDescription: '',
   robotsIndex: true,
   robotsFollow: true,
+  googleVerification: '',
+  bingVerification: '',
+  gaMeasurementId: '',
   businessName: '',
   businessDescription: '',
   telephone: '',
@@ -188,6 +191,18 @@ export default function SiteSeoPage() {
                 <Toggle checked={!!form.robotsIndex} onChange={(v) => setForm((f) => ({ ...f, robotsIndex: v }))} label="Allow indexing (robots index)" />
                 <Toggle checked={!!form.robotsFollow} onChange={(v) => setForm((f) => ({ ...f, robotsFollow: v }))} label="Allow following links (robots follow)" />
               </div>
+            </Section>
+
+            <Section title="Verification & Analytics" hint="Search Console / Bing verification meta tags and GA4 tracking.">
+              <Field label="Google verification token" hint="The content value from Search Console's HTML-tag method.">
+                <Input value={form.googleVerification} onChange={set('googleVerification')} placeholder="e.g. dBw5Cv9x…" />
+              </Field>
+              <Field label="Bing verification token" hint="The content value from Bing Webmaster Tools.">
+                <Input value={form.bingVerification} onChange={set('bingVerification')} placeholder="e.g. 1A2B3C4D…" />
+              </Field>
+              <Field label="GA4 measurement ID" hint="Google Analytics 4 ID. Loads gtag on every page when set.">
+                <Input value={form.gaMeasurementId} onChange={set('gaMeasurementId')} placeholder="e.g. G-XXXXXXXXXX" />
+              </Field>
             </Section>
           </div>
 

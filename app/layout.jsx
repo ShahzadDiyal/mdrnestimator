@@ -1,5 +1,6 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
+import Script from 'next/script';
 import { getSiteSeo } from '@/lib/site';
 
 const inter = Inter({
@@ -41,6 +42,11 @@ export async function generateMetadata() {
       description: s?.twitterDescription || description,
     },
     robots: { index: s?.robotsIndex !== false, follow: s?.robotsFollow !== false },
+    // Search Console / Bing verification — managed in Site SEO.
+    verification: {
+      ...(s?.googleVerification ? { google: s.googleVerification } : {}),
+      ...(s?.bingVerification ? { other: { 'msvalidate.01': s.bingVerification } } : {}),
+    },
   };
 }
 
@@ -49,10 +55,23 @@ export const viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }) {
+export default async function RootLayout({ children }) {
+  // GA4 measurement ID — managed in Site SEO. Script loads only when set.
+  const s = await getSiteSeo();
+  const gaId = (s?.gaMeasurementId || '').trim();
   return (
     <html lang="en" className={inter.variable}>
-      <body className="bg-white text-ink-900 font-sans">{children}</body>
+      <body className="bg-white text-ink-900 font-sans">
+        {children}
+        {gaId && (
+          <>
+            <Script src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} strategy="afterInteractive" />
+            <Script id="ga4-init" strategy="afterInteractive">
+              {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${gaId}');`}
+            </Script>
+          </>
+        )}
+      </body>
     </html>
   );
 }

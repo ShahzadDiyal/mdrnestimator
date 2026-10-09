@@ -1,18 +1,21 @@
 import PageHeader from '@/components/PageHeader';
 import Portfolio from '@/components/Portfolio';
 import CtaBanner from '@/components/CtaBanner';
-import { getSeoPage } from '@/lib/site';
+import { getSeoPage, socialMeta } from '@/lib/site';
 
 export const revalidate = 60;
 
 export async function generateMetadata() {
   const seo = await getSeoPage('/portfolio');
+  const title = seo?.title || 'Portfolio — Modern Estimator';
+  const description =
+    seo?.description ||
+    'A selection of construction estimates delivered across residential, commercial and industrial projects nationwide.';
   return {
-    title: seo?.title || 'Portfolio — Modern Estimator',
-    description:
-      seo?.description ||
-      'A selection of construction estimates delivered across residential, commercial and industrial projects nationwide.',
+    title,
+    description,
     alternates: { canonical: '/portfolio' },
+    ...socialMeta({ title, description, path: '/portfolio' }),
   };
 }
 

@@ -4,7 +4,7 @@ import PageHeader from '@/components/PageHeader';
 import CtaBanner from '@/components/CtaBanner';
 import { SERVICES, getService } from '@/data/services';
 import { getAllTrades } from '@/data/trade-pages';
-import { getServices, getServiceBySlug, getTrades, toArray, toParagraphs } from '@/lib/site';
+import { getServices, getServiceBySlug, getTrades, toArray, toParagraphs, socialMeta } from '@/lib/site';
 
 // Fresh data at most a minute old — admin edits go live quickly,
 // pages stay fast and fully server-rendered for SEO.
@@ -37,10 +37,13 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }) {
   const service = (await getServiceBySlug(params.slug)) || getService(params.slug);
   if (!service) return {};
+  const title = service.metaTitle || `${service.title} — Modern Estimator`;
+  const description = service.metaDescription || service.tagline || service.short || '';
   return {
-    title: service.metaTitle || `${service.title} — Modern Estimator`,
-    description: service.metaDescription || service.tagline || service.short || '',
+    title,
+    description,
     alternates: { canonical: `/services/${service.slug}` },
+    ...socialMeta({ title, description, path: `/services/${service.slug}` }),
   };
 }
 
@@ -69,8 +72,33 @@ export default async function ServiceDetailPage({ params }) {
     .map((slug) => tradePool.find((t) => t.slug === slug))
     .filter(Boolean);
 
+  const url = `https://modernestimator.com/services/${service.slug}`;
+  const jsonLd = [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      name: service.h1 || service.title,
+      serviceType: `${service.title} estimating`,
+      description: service.metaDescription || service.tagline || service.short || '',
+      url,
+      provider: { '@type': 'Organization', name: 'Modern Estimator', url: 'https://modernestimator.com' },
+      areaServed: { '@type': 'Country', name: 'United States' },
+      offers: { '@type': 'Offer', url: 'https://modernestimator.com/contact', availability: 'https://schema.org/InStock' },
+    },
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://modernestimator.com' },
+        { '@type': 'ListItem', position: 2, name: 'Services', item: 'https://modernestimator.com/services' },
+        { '@type': 'ListItem', position: 3, name: service.title, item: url },
+      ],
+    },
+  ];
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <PageHeader
         eyebrow="Service"
         title={service.h1 || service.title}

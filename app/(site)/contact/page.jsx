@@ -1,6 +1,6 @@
 import PageHeader from '@/components/PageHeader';
 import QuoteForm from '@/components/QuoteForm';
-import { getContactInfo, getSeoPage } from '@/lib/site';
+import { getContactInfo, getSeoPage, socialMeta } from '@/lib/site';
 
 // Fresh data at most a minute old — admin edits go live quickly,
 // pages stay fast and fully server-rendered for SEO.
@@ -8,12 +8,15 @@ export const revalidate = 60;
 
 export async function generateMetadata() {
   const seo = await getSeoPage('/contact');
+  const title = seo?.title || 'Contact Us & Get a Free Quote — Modern Estimator';
+  const description =
+    seo?.description ||
+    'Send us your plans for a free, no-obligation construction estimate. We respond within 2 business hours — complete estimate in 8–24 hours.';
   return {
-    title: seo?.title || 'Contact Us & Get a Free Quote — Modern Estimator',
-    description:
-      seo?.description ||
-      'Send us your plans for a free, no-obligation construction estimate. We respond within 2 business hours — complete estimate in 8–24 hours.',
+    title,
+    description,
     alternates: { canonical: '/contact' },
+    ...socialMeta({ title, description, path: '/contact' }),
   };
 }
 

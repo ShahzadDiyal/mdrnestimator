@@ -62,9 +62,23 @@ export default async function JsonLd() {
   ]);
 
   const baseUrl = (seo?.siteUrl || FALLBACK.baseUrl).replace(/\/$/, '');
-  const phone = ci?.phone || ft?.phone || FALLBACK.phone;
-  const email = ci?.email || ft?.email || FALLBACK.email;
-  const address = parseAddress(ci?.address || ft?.address);
+  // Business identity: Site SEO schema fields first (managed for SEO),
+  // then the Contact/Footer records, then static fallback.
+  const phone = seo?.telephone || ci?.phone || ft?.phone || FALLBACK.phone;
+  const email = seo?.email || ci?.email || ft?.email || FALLBACK.email;
+  const priceRange = seo?.priceRange || FALLBACK.priceRange;
+  const businessName = seo?.businessName || 'Modern Estimator';
+  const businessDescription = seo?.businessDescription || seo?.ogDescription || FALLBACK.description;
+  const address = seo?.streetAddress
+    ? {
+        streetAddress: seo.streetAddress,
+        addressLocality: seo.addressLocality || FALLBACK.addressLocality,
+        addressRegion: seo.addressRegion || FALLBACK.addressRegion,
+        postalCode: seo.postalCode || FALLBACK.postalCode,
+        addressCountry: seo.addressCountry || 'US',
+      }
+    : parseAddress(ci?.address || ft?.address);
+  const areaServed = seo?.areaServed || 'United States';
   const serviceNames = services.length
     ? services.map((s) => s.title).filter(Boolean)
     : FALLBACK.services;
@@ -73,24 +87,24 @@ export default async function JsonLd() {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'ProfessionalService',
-    name: 'Modern Estimator',
-    description: seo?.ogDescription || FALLBACK.description,
+    name: businessName,
+    description: businessDescription,
     url: baseUrl,
     telephone: phone,
     email,
-    priceRange: '$$',
+    priceRange,
     address: {
       '@type': 'PostalAddress',
       ...address,
     },
     areaServed: {
       '@type': 'Country',
-      name: 'United States',
+      name: areaServed,
     },
     aggregateRating: {
       '@type': 'AggregateRating',
-      ratingValue: '4.9',
-      reviewCount: '320',
+      ratingValue: seo?.ratingValue || '4.9',
+      reviewCount: seo?.reviewCount || '320',
     },
     ...(sameAs.length ? { sameAs } : {}),
     hasOfferCatalog: {
