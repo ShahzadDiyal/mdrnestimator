@@ -62,6 +62,7 @@ const NAV = [
     items: [
       { href: '/admin/content/seo', label: 'SEO Meta', icon: IconGlobe },
       { href: '/admin/content/site-seo', label: 'Site SEO', icon: IconGlobe },
+      { href: '/admin/content/crawling', label: 'Crawling & Indexing', icon: IconSearch },
       { href: '/admin/content/visibility', label: 'Visibility', icon: IconEye },
     ],
   },

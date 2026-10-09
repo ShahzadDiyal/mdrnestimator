@@ -2,7 +2,7 @@ import Link from 'next/link';
 import PageHeader from '@/components/PageHeader';
 import CtaBanner from '@/components/CtaBanner';
 import { TRADES } from '@/data/trades';
-import { getTradeTree, getSeoPage } from '@/lib/site';
+import { getTradeTree, getSeoPage, pageRobots } from '@/lib/site';
 
 const BASE_URL = 'https://modernestimator.com';
 
@@ -17,6 +17,7 @@ export async function generateMetadata() {
     seo?.description ||
     'Trade-specific construction estimating and takeoff services for every CSI division: concrete, electrical, MEP, metals, finishes, roofing, sitework, lumber and more. 8–24 hour turnaround.';
   return {
+    robots: await pageRobots('/trades'),
     title,
     description,
     alternates: { canonical: '/trades' },

@@ -4,7 +4,7 @@ import PageHeader from '@/components/PageHeader';
 import CtaBanner from '@/components/CtaBanner';
 import { SERVICES, getService } from '@/data/services';
 import { getAllTrades } from '@/data/trade-pages';
-import { getServices, getServiceBySlug, getTrades, toArray, toParagraphs, socialMeta } from '@/lib/site';
+import { getServices, getServiceBySlug, getTrades, toArray, toParagraphs, socialMeta, pageRobots } from '@/lib/site';
 
 // Fresh data at most a minute old — admin edits go live quickly,
 // pages stay fast and fully server-rendered for SEO.
@@ -42,6 +42,7 @@ export async function generateMetadata({ params }) {
   return {
     title,
     description,
+    robots: await pageRobots('/services/x'),
     alternates: { canonical: `/services/${service.slug}` },
     ...socialMeta({ title, description, path: `/services/${service.slug}` }),
   };

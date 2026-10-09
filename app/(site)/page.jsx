@@ -8,6 +8,13 @@ import Portfolio from '@/components/Portfolio';
 import Testimonials from '@/components/Testimonials';
 import Faq from '@/components/Faq';
 import CtaBanner from '@/components/CtaBanner';
+import { pageRobots } from '@/lib/site';
+
+// Homepage indexability toggle (Website Content → Crawling & Indexing).
+// Title/description/OG come from the root layout's Site SEO defaults.
+export async function generateMetadata() {
+  return { robots: await pageRobots('/') };
+}
 
 export default function Home() {
   return (

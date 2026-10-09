@@ -1,6 +1,6 @@
 import PageHeader from '@/components/PageHeader';
 import QuoteForm from '@/components/QuoteForm';
-import { getContactInfo, getSeoPage, socialMeta } from '@/lib/site';
+import { getContactInfo, getSeoPage, socialMeta, pageRobots } from '@/lib/site';
 
 // Fresh data at most a minute old — admin edits go live quickly,
 // pages stay fast and fully server-rendered for SEO.
@@ -15,6 +15,7 @@ export async function generateMetadata() {
   return {
     title,
     description,
+    robots: await pageRobots('/contact'),
     alternates: { canonical: '/contact' },
     ...socialMeta({ title, description, path: '/contact' }),
   };

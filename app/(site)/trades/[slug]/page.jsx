@@ -4,7 +4,7 @@ import PageHeader from '@/components/PageHeader';
 import CtaBanner from '@/components/CtaBanner';
 import { getAllTrades } from '@/data/trade-pages';
 import { SERVICES } from '@/data/services';
-import { getTradeDetail, getTrades } from '@/lib/site';
+import { getTradeDetail, getTrades, pageRobots } from '@/lib/site';
 
 const BASE_URL = 'https://modernestimator.com';
 
@@ -30,6 +30,7 @@ export async function generateMetadata({ params }) {
   const title = trade.metaTitle || `${trade.title} Services — Modern Estimator`;
   const description = trade.metaDescription || trade.tagline;
   return {
+    robots: await pageRobots('/trades/x'),
     title,
     description,
     alternates: { canonical: `/trades/${trade.slug}` },

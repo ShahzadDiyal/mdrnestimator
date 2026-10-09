@@ -1,7 +1,7 @@
 import PageHeader from '@/components/PageHeader';
 import Portfolio from '@/components/Portfolio';
 import CtaBanner from '@/components/CtaBanner';
-import { getSeoPage, socialMeta } from '@/lib/site';
+import { getSeoPage, socialMeta, pageRobots } from '@/lib/site';
 
 export const revalidate = 60;
 
@@ -14,6 +14,7 @@ export async function generateMetadata() {
   return {
     title,
     description,
+    robots: await pageRobots('/portfolio'),
     alternates: { canonical: '/portfolio' },
     ...socialMeta({ title, description, path: '/portfolio' }),
   };

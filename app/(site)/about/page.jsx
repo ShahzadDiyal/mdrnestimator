@@ -3,7 +3,7 @@ import PageHeader from '@/components/PageHeader';
 import Stats from '@/components/Stats';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import CtaBanner from '@/components/CtaBanner';
-import { getAboutPage, getSeoPage, toArray, toParagraphs, socialMeta } from '@/lib/site';
+import { getAboutPage, getSeoPage, toArray, toParagraphs, socialMeta, pageRobots } from '@/lib/site';
 
 // Fresh data at most a minute old — admin edits go live quickly,
 // pages stay fast and fully server-rendered for SEO.
@@ -18,6 +18,7 @@ export async function generateMetadata() {
   return {
     title,
     description,
+    robots: await pageRobots('/about'),
     alternates: { canonical: '/about' },
     ...socialMeta({ title, description, path: '/about' }),
   };

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
 import CtaBanner from '@/components/CtaBanner';
-import { getPosts } from '@/lib/site';
+import { getPosts, pageRobots } from '@/lib/site';
 
 const BASE_URL = 'https://modernestimator.com';
 
@@ -27,6 +27,7 @@ export async function generateMetadata({ params }) {
   const title = post.metaTitle || `${post.title} | Modern Estimator`;
   const description = post.metaDescription || post.excerpt || '';
   return {
+    robots: await pageRobots('/blog/x'),
     title,
     description,
     alternates: { canonical: `/blog/${post.slug}` },

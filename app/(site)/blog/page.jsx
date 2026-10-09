@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import PageHeader from '@/components/PageHeader';
 import CtaBanner from '@/components/CtaBanner';
-import { getPosts, getSeoPage } from '@/lib/site';
+import { getPosts, getSeoPage, pageRobots } from '@/lib/site';
 
 // Fresh data at most a minute old — admin edits go live quickly,
 // pages stay fast and fully server-rendered for SEO.
@@ -10,6 +10,7 @@ export const revalidate = 60;
 export async function generateMetadata() {
   const seo = await getSeoPage('/blog');
   return {
+    robots: await pageRobots('/blog'),
     title: seo?.title || 'Blog — Estimating Guides & Tips | Modern Estimator',
     description:
       seo?.description ||
