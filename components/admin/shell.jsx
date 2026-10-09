@@ -19,51 +19,59 @@ import {
   IconChart, IconImage, IconPhone, IconGlobe, IconBot, IconMail, IconSettings, IconEye,
 } from './icons';
 
+// Standardized flat menu — groups are plain labels (never collapsible),
+// ordered the way real admin systems do it: overview → content →
+// website structure → marketing → system.
 const NAV = [
   {
-    section: 'Main',
+    label: 'Overview',
     items: [
       { href: '/admin/dashboard', label: 'Dashboard', icon: IconDashboard },
       { href: '/admin/leads', label: 'Leads & Quotes', icon: IconInbox, badge: (s) => s?.leads?.filter((l) => l.status === 'New').length || null },
     ],
   },
   {
-    section: 'Catalog Content',
+    label: 'Content',
     items: [
       { href: '/admin/content/services', label: 'Core Services', icon: IconFileText },
       { href: '/admin/content/trades', label: 'Trade Estimating Pages', icon: IconLayers },
       { href: '/admin/content/blog', label: 'Blog & Articles', icon: IconPen },
+      { href: '/admin/content/portfolio', label: 'Portfolio', icon: IconImage },
       { href: '/admin/content/faqs', label: 'FAQs', icon: IconHelp },
       { href: '/admin/content/testimonials', label: 'Client Testimonials', icon: IconStar },
     ],
   },
   {
-    section: 'Website Content',
+    label: 'Website',
     items: [
       { href: '/admin/content/hero', label: 'Hero Section', icon: IconStar },
       { href: '/admin/content/navbar', label: 'Navbar', icon: IconMenu },
       { href: '/admin/content/footer', label: 'Footer', icon: IconLayers },
+      { href: '/admin/content/stats', label: 'Stats & Counters', icon: IconChart },
       { href: '/admin/content/why-choose-us', label: 'Why Choose Us', icon: IconShield },
       { href: '/admin/content/process-steps', label: 'Process Steps', icon: IconClock },
       { href: '/admin/content/cta-banner', label: 'CTA Banner', icon: IconSend },
       { href: '/admin/content/section-headings', label: 'Section Headings', icon: IconPen },
-      { href: '/admin/content/quote-options', label: 'Quote Form Options', icon: IconFileText },
       { href: '/admin/content/about', label: 'About Page', icon: IconBriefcase },
-      { href: '/admin/content/stats', label: 'Stats & Counters', icon: IconChart },
-      { href: '/admin/content/portfolio', label: 'Portfolio', icon: IconImage },
       { href: '/admin/content/contact', label: 'Contact Details', icon: IconPhone },
-      { href: '/admin/content/seo', label: 'SEO Meta', icon: IconGlobe },
-      { href: '/admin/content/site-seo', label: 'Site SEO', icon: IconGlobe },
-      { href: '/admin/content/visibility', label: 'Visibility', icon: IconEye },
-      { href: '/admin/chatbot', label: 'Chatbot', icon: IconBot },
-      { href: '/admin/email', label: 'Email & Notifications', icon: IconMail },
-      { href: '/admin/settings', label: 'Site Settings', icon: IconSettings },
+      { href: '/admin/content/quote-options', label: 'Quote Form Options', icon: IconFileText },
     ],
   },
   {
-    section: 'System',
+    label: 'SEO & Visibility',
     items: [
+      { href: '/admin/content/seo', label: 'SEO Meta', icon: IconGlobe },
+      { href: '/admin/content/site-seo', label: 'Site SEO', icon: IconGlobe },
+      { href: '/admin/content/visibility', label: 'Visibility', icon: IconEye },
+    ],
+  },
+  {
+    label: 'System',
+    items: [
+      { href: '/admin/chatbot', label: 'Chatbot', icon: IconBot },
+      { href: '/admin/email', label: 'Email & Notifications', icon: IconMail },
       { href: '/admin/users', label: 'Users & Roles', icon: IconUsers },
+      { href: '/admin/settings', label: 'Site Settings', icon: IconSettings },
     ],
   },
 ];
@@ -74,10 +82,6 @@ function Sidebar({ open, onClose, user }) {
   const { logout } = useAuth();
   const router = useRouter();
   const isActive = (href) => pathname === href || (href !== '/admin/dashboard' && pathname.startsWith(href + '/'));
-  const [openSection, setOpenSection] = useState(() => {
-    const found = NAV.find((s) => s.items.some((i) => isActive(i.href)));
-    return found ? found.section : 'Main';
-  });
 
   const sections = useMemo(
     () => NAV.filter((s) => !s.adminOnly || isAdmin(user)),
@@ -103,46 +107,40 @@ function Sidebar({ open, onClose, user }) {
         </div>
 
         <nav className="flex-1 min-h-0 overflow-y-auto px-3 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {sections.map((sec) => {
-            const collapsed = openSection !== sec.section && sec.section !== 'Main';
-            return (
-              <div key={sec.section} className="mb-1.5">
-                <button
-                  onClick={() => setOpenSection(collapsed ? sec.section : 'Main')}
-                  className="flex w-full items-center justify-between px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-white/50 hover:text-white/80"
-                >
-                  {sec.section}
-                  <IconChevronDown size={13} className={`transition-transform ${collapsed ? '-rotate-90' : ''}`} />
-                </button>
-                {!collapsed && (
-                  <ul className="space-y-0.5">
-                    {sec.items.map((item) => {
-                      const active = isActive(item.href);
-                      const badge = item.badge && state ? item.badge(state) : null;
-                      const Icon = item.icon;
-                      return (
-                        <li key={item.href}>
-                          <Link
-                            href={item.href}
-                            onClick={onClose}
-                            className={`flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all ${
-                              active ? 'bg-white/15 text-white shadow-inner' : 'text-white/70 hover:bg-white/5 hover:text-white'
-                            }`}
-                          >
-                            <Icon size={16} className={active ? 'text-accent-300' : 'text-white/50'} />
-                            <span className="flex-1 truncate">{item.label}</span>
-                            {badge ? (
-                              <span className="rounded-full bg-accent-500 px-2 py-0.5 text-[10px] font-bold text-white">{badge}</span>
-                            ) : null}
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            );
-          })}
+          {sections.map((sec, si) => (
+            <div key={sec.label} className={si > 0 ? 'mt-5' : ''}>
+              <p className="px-3 pb-1.5 text-[10px] font-bold uppercase tracking-widest text-white/40">
+                {sec.label}
+              </p>
+              <ul className="space-y-0.5">
+                {sec.items.map((item) => {
+                  const active = isActive(item.href);
+                  const badge = item.badge && state ? item.badge(state) : null;
+                  const Icon = item.icon;
+                  return (
+                    <li key={item.href}>
+                      <Link
+                        href={item.href}
+                        onClick={onClose}
+                        className={`relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-[13px] font-medium transition-all ${
+                          active ? 'bg-white/15 text-white' : 'text-white/70 hover:bg-white/5 hover:text-white'
+                        }`}
+                      >
+                        {active && (
+                          <span className="absolute left-0 top-1/2 h-5 w-1 -translate-y-1/2 rounded-full bg-accent-400" aria-hidden />
+                        )}
+                        <Icon size={16} className={active ? 'text-accent-300' : 'text-white/50'} />
+                        <span className="flex-1 truncate">{item.label}</span>
+                        {badge ? (
+                          <span className="rounded-full bg-accent-500 px-2 py-0.5 text-[10px] font-bold text-white">{badge}</span>
+                        ) : null}
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ))}
         </nav>
 
         <div className="border-t border-white/10 p-3">
