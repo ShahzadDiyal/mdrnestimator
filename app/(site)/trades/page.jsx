@@ -1,8 +1,9 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
 import CtaBanner from '@/components/CtaBanner';
 import { TRADES } from '@/data/trades';
-import { getTradeTree, getSeoPage, pageRobots } from '@/lib/site';
+import { getTradeTree, getSeoPage, pageRobots, getVisibility } from '@/lib/site';
 
 const BASE_URL = 'https://modernestimator.com';
 
@@ -33,6 +34,9 @@ const WHY = [
 ];
 
 export default async function TradesPage() {
+  // Visibility toggle — hidden pages 404 (Website Content → Visibility).
+  const __vis = await getVisibility();
+  if (__vis?.pages?.['trades'] === false) notFound();
   const live = await getTradeTree();
   const list = live.length ? live : TRADES;
 

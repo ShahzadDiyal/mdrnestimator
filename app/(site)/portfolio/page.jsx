@@ -1,7 +1,8 @@
 import PageHeader from '@/components/PageHeader';
+import { notFound } from 'next/navigation';
 import Portfolio from '@/components/Portfolio';
 import CtaBanner from '@/components/CtaBanner';
-import { getSeoPage, socialMeta, pageRobots } from '@/lib/site';
+import { getSeoPage, socialMeta, pageRobots, getVisibility } from '@/lib/site';
 
 export const revalidate = 60;
 
@@ -20,7 +21,10 @@ export async function generateMetadata() {
   };
 }
 
-export default function PortfolioPage() {
+export default async function PortfolioPage() {
+  // Visibility toggle — hidden pages 404 (Website Content → Visibility).
+  const __vis = await getVisibility();
+  if (__vis?.pages?.['portfolio'] === false) notFound();
   return (
     <>
       <PageHeader

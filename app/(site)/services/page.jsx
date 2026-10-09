@@ -1,8 +1,9 @@
 import PageHeader from '@/components/PageHeader';
+import { notFound } from 'next/navigation';
 import ServiceCard from '@/components/ServiceCard';
 import CtaBanner from '@/components/CtaBanner';
 import { SERVICES } from '@/data/services';
-import { getServices, getSeoPage, toArray, socialMeta, pageRobots } from '@/lib/site';
+import { getServices, getSeoPage, toArray, socialMeta, pageRobots, getVisibility } from '@/lib/site';
 
 // Fresh data at most a minute old — admin edits go live quickly,
 // pages stay fast and fully server-rendered for SEO.
@@ -26,6 +27,9 @@ export async function generateMetadata() {
 const iconFor = (slug) => SERVICES.find((x) => x.slug === slug)?.icon || null;
 
 export default async function ServicesPage() {
+  // Visibility toggle — hidden pages 404 (Website Content → Visibility).
+  const __vis = await getVisibility();
+  if (__vis?.pages?.['services'] === false) notFound();
   const live = await getServices();
   const cards = live.length
     ? live.map((s) => ({

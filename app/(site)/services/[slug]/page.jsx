@@ -4,7 +4,7 @@ import PageHeader from '@/components/PageHeader';
 import CtaBanner from '@/components/CtaBanner';
 import { SERVICES, getService } from '@/data/services';
 import { getAllTrades } from '@/data/trade-pages';
-import { getServices, getServiceBySlug, getTrades, toArray, toParagraphs, socialMeta, pageRobots } from '@/lib/site';
+import { getServices, getServiceBySlug, getTrades, toArray, toParagraphs, socialMeta, pageRobots, getVisibility } from '@/lib/site';
 
 // Fresh data at most a minute old — admin edits go live quickly,
 // pages stay fast and fully server-rendered for SEO.
@@ -49,6 +49,9 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function ServiceDetailPage({ params }) {
+  // Visibility toggle — hidden pages 404 (Website Content → Visibility).
+  const __vis = await getVisibility();
+  if (__vis?.pages?.['services'] === false) notFound();
   // One parallel roundtrip for everything the page needs.
   const [liveServices, liveTrades] = await Promise.all([getServices(), getTrades()]);
   const raw = liveServices.find((s) => s.slug === params.slug) || getService(params.slug);

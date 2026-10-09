@@ -1,9 +1,10 @@
 import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import PageHeader from '@/components/PageHeader';
 import Stats from '@/components/Stats';
 import WhyChooseUs from '@/components/WhyChooseUs';
 import CtaBanner from '@/components/CtaBanner';
-import { getAboutPage, getSeoPage, toArray, toParagraphs, socialMeta, pageRobots } from '@/lib/site';
+import { getAboutPage, getSeoPage, toArray, toParagraphs, socialMeta, pageRobots, getVisibility } from '@/lib/site';
 
 // Fresh data at most a minute old — admin edits go live quickly,
 // pages stay fast and fully server-rendered for SEO.
@@ -51,6 +52,9 @@ const FALLBACK = {
 };
 
 export default async function AboutPage() {
+  // Visibility toggle — hidden pages 404 (Website Content → Visibility).
+  const __vis = await getVisibility();
+  if (__vis?.pages?.['about'] === false) notFound();
   const live = await getAboutPage();
   const a = {
     headerEyebrow: live?.headerEyebrow || FALLBACK.headerEyebrow,

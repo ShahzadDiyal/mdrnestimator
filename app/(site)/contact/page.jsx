@@ -1,6 +1,7 @@
 import PageHeader from '@/components/PageHeader';
+import { notFound } from 'next/navigation';
 import QuoteForm from '@/components/QuoteForm';
-import { getContactInfo, getSeoPage, socialMeta, pageRobots } from '@/lib/site';
+import { getContactInfo, getSeoPage, socialMeta, pageRobots, getVisibility } from '@/lib/site';
 
 // Fresh data at most a minute old — admin edits go live quickly,
 // pages stay fast and fully server-rendered for SEO.
@@ -44,6 +45,9 @@ const ICONS = {
 };
 
 export default async function ContactPage() {
+  // Visibility toggle — hidden pages 404 (Website Content → Visibility).
+  const __vis = await getVisibility();
+  if (__vis?.pages?.['contact'] === false) notFound();
   const info = (await getContactInfo()) || {};
   const tel = (info.phone || FALLBACK.phone).replace(/[^+\d]/g, '');
 
