@@ -36,6 +36,7 @@ const NAV = [
       { href: '/admin/content/services', label: 'Core Services', icon: IconFileText },
       { href: '/admin/content/trades', label: 'Trade Estimating Pages', icon: IconLayers },
       { href: '/admin/content/blog', label: 'Blog & Articles', icon: IconPen },
+      { href: '/admin/content/custom-pages', label: 'Custom Pages', icon: IconFileText },
       { href: '/admin/content/portfolio', label: 'Portfolio', icon: IconImage },
       { href: '/admin/content/faqs', label: 'FAQs', icon: IconHelp },
       { href: '/admin/content/testimonials', label: 'Client Testimonials', icon: IconStar },

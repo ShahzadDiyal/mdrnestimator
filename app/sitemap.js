@@ -1,6 +1,6 @@
 import { SERVICES } from '@/data/services';
 import { getAllTrades } from '@/data/trades';
-import { getServices, getTrades, getPosts, getSiteSeo, getCrawling, getVisibility, isIndexable } from '@/lib/site';
+import { getServices, getTrades, getPosts, getCustomPages, getSiteSeo, getCrawling, getVisibility, isIndexable } from '@/lib/site';
 
 const BASE_URL = 'https://modernestimator.com';
 
@@ -35,10 +35,11 @@ export default async function sitemap() {
     }));
 
   // Live data first (admin-managed), static catalog as fallback.
-  const [liveServices, liveTrades, livePosts] = await Promise.all([
+  const [liveServices, liveTrades, livePosts, customPages] = await Promise.all([
     getServices(),
     getTrades(),
     getPosts(),
+    getCustomPages().catch(() => []),
   ]);
 
   const serviceSlugs = (liveServices.length ? liveServices : SERVICES).map((s) => s.slug);
@@ -71,5 +72,14 @@ export default async function sitemap() {
       }))
     : [];
 
-  return [...staticRoutes, ...serviceRoutes, ...tradeRoutes, ...postRoutes];
+  const customPageRoutes = customPages
+    .filter((p) => !p.noindex)
+    .map((p) => ({
+      url: `${BASE_URL}/${p.slug}`,
+      lastModified: p.updatedAt ? new Date(p.updatedAt) : now,
+      changeFrequency: changeFreq,
+      priority: pagePriority,
+    }));
+
+  return [...staticRoutes, ...serviceRoutes, ...tradeRoutes, ...postRoutes, ...customPageRoutes];
 }
